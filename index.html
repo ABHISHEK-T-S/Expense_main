@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+        }
+        /* Flexbox for full height layout */
+        .min-h-screen {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-center justify-center py-8">
+
+    <!-- Authentication Modal (Visible by default until authenticated) -->
+    <div id="authModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-blue-300">
+            <h2 class="text-4xl font-extrabold text-gray-800 mb-6">Welcome to Finance Tracker</h2>
+            <p class="text-gray-600 mb-6">Sign in or create an account to manage your finances.</p>
+            <form id="authForm" class="space-y-5">
+                <div>
+                    <input
+                        type="email"
+                        id="authEmail"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="Email"
+                        required
+                    />
+                </div>
+                <div>
+                    <input
+                        type="password"
+                        id="authPassword"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="Password"
+                        required
+                    />
+                </div>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button
+                        type="submit"
+                        id="signInBtn"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        Sign In
+                    </button>
+                    <button
+                        type="submit"
+                        id="signUpBtn"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                        Sign Up
+                    </button>
+                </div>
+            </form>
+            <p id="authError" class="text-red-500 mt-4 text-sm"></p>
+        </div>
+    </div>
+
+    <!-- Main App Content (Hidden by default until authenticated) -->
+    <div id="appContent" class="container max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-2xl border border-gray-200 hidden">
+        <h1 class="text-5xl font-extrabold text-gray-800 mb-8 text-center tracking-tight leading-tight">
+            Personal Finance Tracker
+        </h1>
+
+        <!-- User ID Display and Logout Button -->
+        <div id="userIdDisplay" class="bg-gray-50 p-3 rounded-xl shadow-inner mb-6 text-center flex justify-between items-center">
+            <p class="text-gray-600 text-sm">
+                Logged in as: <span id="currentUserId" class="font-semibold text-blue-600 break-words"></span>
+            </p>
+            <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                Logout
+            </button>
+        </div>
+
+        <!-- Add Transaction Section -->
+        <div class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-8 border border-indigo-200">
+            <h2 class="text-3xl font-bold text-indigo-800 mb-6 text-center">Add New Transaction</h2>
+            <form id="transactionForm" class="space-y-6">
+                <div>
+                    <label for="description" class="block text-gray-700 text-lg font-medium mb-2">Description</label>
+                    <input
+                        type="text"
+                        id="description"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="e.g., Groceries, Salary, Rent"
+                        required
+                    />
+                </div>
+                <div>
+                    <label for="amount" class="block text-gray-700 text-lg font-medium mb-2">Amount</label>
+                    <input
+                        type="number"
+                        id="amount"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="e.g., 50.00"
+                        step="0.01"
+                        required
+                    />
+                </div>
+                <div>
+                    <label for="date" class="block text-gray-700 text-lg font-medium mb-2">Date</label>
+                    <input
+                        type="date"
+                        id="date"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-200"
+                        required
+                    />
+                </div>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button
+                        type="submit"
+                        data-type="expense"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    >
+                        Add Expense
+                    </button>
+                    <button
+                        type="submit"
+                        data-type="income"
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    >
+                        Add Income
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Monthly Summary -->
+        <div class="bg-purple-50 p-6 rounded-xl shadow-lg mb-8 border border-purple-200">
+            <h2 class="text-3xl font-bold text-purple-800 mb-4 text-center">This Month's Summary</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-green-200">
+                    <p class="text-lg text-gray-600">Total Income</p>
+                    <p id="monthlyIncome" class="text-3xl font-extrabold text-green-700 mt-1">₹0.00</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-red-200">
+                    <p class="text-lg text-gray-600">Total Expenses</p>
+                    <p id="monthlyExpenses" class="text-3xl font-extrabold text-red-700 mt-1">₹0.00</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-blue-200">
+                    <p class="text-lg text-gray-600">Net Balance</p>
+                    <p id="monthlyBalance" class="text-3xl font-extrabold text-blue-700 mt-1">₹0.00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History & Filters -->
+        <div class="bg-gray-50 p-8 rounded-xl shadow-lg border border-gray-200">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Transaction History</h2>
+
+            <!-- Filter by Date -->
+            <div class="mb-6 bg-white p-5 rounded-lg shadow-sm border border-gray-300">
+                <h3 class="text-xl font-semibold text-gray-700 mb-3">Filter Transactions</h3>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end">
+                    <div class="flex-1 w-full">
+                        <label for="startDate" class="block text-gray-700 text-sm font-medium mb-1">Start Date</label>
+                        <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none">
+                    </div>
+                    <div class="flex-1 w-full">
+                        <label for="endDate" class="block text-gray-700 text-sm font-medium mb-1">End Date</label>
+                        <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none">
+                    </div>
+                    <button id="applyFilterBtn" class="w-full sm:w-auto px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Apply Filter
+                    </button>
+                    <button id="clearFilterBtn" class="w-full sm:w-auto px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                        Clear Filter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Transaction List -->
+            <div id="transactionList" class="space-y-3 mb-6">
+                <p class="text-center text-gray-500 text-lg">No transactions yet. Add some!</p>
+            </div>
+
+            <!-- Export to Excel Button -->
+            <button id="exportToExcelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Export to Excel (CSV)
+            </button>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal Structure (Hidden by default) -->
+    <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-gray-300">
+            <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4"></h3>
+            <p id="modalMessage" class="text-gray-600 text-lg mb-6"></p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirmActionBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    Confirm
+                </button>
+                <button id="cancelActionBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Version 11.9.1) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCl6ubGzBbeiJv1vYSuGCFmeqvQRyQeDRM",
+            authDomain: "expensetracker-e711b.firebaseapp.com",
+            projectId: "expensetracker-e711b",
+            storageBucket: "expensetracker-e711b.firebasestorage.app",
+            messagingSenderId: "742011057310",
+            appId: "1:742011057310:web:86e4f6ef2f48977dfdf78f"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        // Global variables for Firebase instances
+        let db = getFirestore(app);
+        let auth = getAuth(app);
+        let currentUserId = null;
+        let currentUserEmail = null; // To store user email
+        let allTransactions = [];
+
+        // Get DOM elements for Auth
+        const authModal = document.getElementById('authModal');
+        const authForm = document.getElementById('authForm');
+        const authEmailInput = document.getElementById('authEmail');
+        const authPasswordInput = document.getElementById('authPassword');
+        const signInBtn = document.getElementById('signInBtn');
+        const signUpBtn = document.getElementById('signUpBtn');
+        const authError = document.getElementById('authError');
+        const appContent = document.getElementById('appContent');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+
+        // Get DOM elements for Finance Tracker
+        const transactionForm = document.getElementById('transactionForm');
+        const descriptionInput = document.getElementById('description');
+        const amountInput = document.getElementById('amount');
+        const dateInput = document.getElementById('date');
+        const transactionListDiv = document.getElementById('transactionList');
+        const monthlyIncomeSpan = document.getElementById('monthlyIncome');
+        const monthlyExpensesSpan = document.getElementById('monthlyExpenses');
+        const monthlyBalanceSpan = document.getElementById('monthlyBalance');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const applyFilterBtn = document.getElementById('applyFilterBtn');
+        const clearFilterBtn = document.getElementById('clearFilterBtn');
+        const exportToExcelBtn = document.getElementById('exportToExcelBtn');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const currentUserIdSpan = document.getElementById('currentUserId');
+
+        // Modal elements for confirmations
+        const confirmationModal = document.getElementById('confirmationModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const confirmActionBtn = document.getElementById('confirmActionBtn');
+        const cancelActionBtn = document.getElementById('cancelActionBtn');
+
+        // Function to show custom confirmation modal
+        function showModal(title, message, onConfirm) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            confirmationModal.classList.remove('hidden');
+
+            const handleConfirm = () => {
+                onConfirm();
+                confirmationModal.classList.add('hidden');
+                confirmActionBtn.removeEventListener('click', handleConfirm);
+                cancelActionBtn.removeEventListener('click', handleCancel);
+            };
+
+            const handleCancel = () => {
+                confirmationModal.classList.add('hidden');
+                confirmActionBtn.removeEventListener('click', handleConfirm);
+                cancelActionBtn.removeEventListener('click', handleCancel);
+            };
+
+            confirmActionBtn.addEventListener('click', handleConfirm);
+            cancelActionBtn.addEventListener('click', handleCancel);
+        }
+
+        // --- Authentication Functions ---
+
+        // Handle Sign In
+        signInBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+            authError.textContent = ''; // Clear previous errors
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Sign In Error:", error);
+                authError.textContent = error.message;
+            }
+        });
+
+        // Handle Sign Up
+        signUpBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+            authError.textContent = ''; // Clear previous errors
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Sign Up Error:", error);
+                authError.textContent = error.message;
+            }
+        });
+
+        // Handle Logout
+        logoutBtn.addEventListener('click', async () => {
+            showModal("Confirm Logout", "Are you sure you want to log out?", async () => {
+                try {
+                    await signOut(auth);
+                } catch (error) {
+                    console.error("Logout Error:", error);
+                    showModal("Logout Error", "Failed to log out. Please try again.", () => {});
+                }
+            });
+        });
+
+        // --- Firebase Initialization and Auth State Listener ---
+        window.onload = () => {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // User is signed in
+                    currentUserId = user.uid;
+                    currentUserEmail = user.email || 'Anonymous'; // Use email or fallback
+                    currentUserIdSpan.textContent = currentUserEmail;
+                    userIdDisplay.classList.remove('hidden');
+                    authModal.classList.add('hidden'); // Hide auth modal
+                    appContent.classList.remove('hidden'); // Show app content
+                    console.log("Logged in as:", currentUserEmail, "(UID:", currentUserId, ")");
+                    listenForTransactions(); // Start listening for data once authenticated
+                } else {
+                    // User is signed out
+                    currentUserId = null;
+                    currentUserEmail = null;
+                    userIdDisplay.classList.add('hidden');
+                    authModal.classList.remove('hidden'); // Show auth modal
+                    appContent.classList.add('hidden'); // Hide app content
+                    allTransactions = []; // Clear transactions when logged out
+                    displayTransactions([]); // Clear displayed transactions
+                    updateMonthlySummary(); // Reset summary
+                    console.log("No user logged in.");
+                }
+            });
+        };
+
+        // Function to listen for real-time transaction updates from Firestore
+        function listenForTransactions() {
+            if (!db || !currentUserId) {
+                console.error("Firestore DB or User ID not available for listening.");
+                return;
+            }
+
+            // IMPORTANT: Updated Firestore path for private user data
+            // Make sure your Firestore Security Rules allow read/write to this path
+            // for the authenticated user only.
+            // Example Security Rules (go to Firebase Console > Firestore Database > Rules):
+            /*
+            rules_version = '2';
+            service cloud.firestore {
+              match /databases/{database}/documents {
+                // Allow read/write access ONLY if the user is authenticated
+                // AND the userId in the path matches the authenticated user's UID
+                match /users/{userId}/transactions/{transactionId} {
+                  allow read, write: if request.auth != null && request.auth.uid == userId;
+                }
+              }
+            }
+            */
+            const transactionsCollectionRef = collection(db, `users/${currentUserId}/transactions`);
+            const q = query(transactionsCollectionRef);
+
+            onSnapshot(q, (snapshot) => {
+                const transactionsData = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                transactionsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+                allTransactions = transactionsData;
+
+                applyCurrentFilterAndDisplay();
+                updateMonthlySummary();
+            }, (error) => {
+                console.error("Error fetching transactions:", error);
+                showModal("Data Fetch Error", "Failed to load transactions. Please check your internet connection.", () => {});
+            });
+        }
+
+        // Function to display transactions based on current filters
+        function applyCurrentFilterAndDisplay() {
+            let filteredTransactions = [...allTransactions];
+
+            const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
+            const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+
+            if (startDate && endDate) {
+                filteredTransactions = filteredTransactions.filter(t => {
+                    const transactionDate = new Date(t.date);
+                    return transactionDate >= startDate && transactionDate <= endDate;
+                });
+            } else if (startDate) {
+                filteredTransactions = filteredTransactions.filter(t => new Date(t.date) >= startDate);
+            } else if (endDate) {
+                filteredTransactions = filteredTransactions.filter(t => new Date(t.date) <= endDate);
+            }
+            
+            displayTransactions(filteredTransactions);
+        }
+
+        // Function to render transactions to the UI
+        function displayTransactions(transactionsToDisplay) {
+            transactionListDiv.innerHTML = '';
+
+            if (transactionsToDisplay.length === 0) {
+                transactionListDiv.innerHTML = '<p class="text-center text-gray-500 text-lg">No transactions to display.</p>';
+                return;
+            }
+
+            transactionsToDisplay.forEach(transaction => {
+                const listItem = document.createElement('div');
+                listItem.classList.add('flex', 'justify-between', 'items-center', 'p-4', 'rounded-lg', 'shadow-sm', 'border', 'border-gray-200');
+
+                const amountClass = transaction.type === 'expense' ? 'text-red-600' : 'text-green-600';
+                const sign = transaction.type === 'expense' ? '-' : '+';
+
+                listItem.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-gray-800 font-semibold text-lg">${transaction.description}</span>
+                        <span class="text-gray-500 text-sm">${transaction.date}</span>
+                    </div>
+                    <span class="${amountClass} font-bold text-xl">${sign} ₹${transaction.amount.toFixed(2)}</span>
+                `;
+                transactionListDiv.appendChild(listItem);
+            });
+        }
+
+        // Function to update monthly summary
+        function updateMonthlySummary() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            let totalIncome = 0;
+            let totalExpenses = 0;
+
+            allTransactions.forEach(transaction => {
+                const transactionDate = new Date(transaction.date);
+                if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
+                    if (transaction.type === 'income') {
+                        totalIncome += transaction.amount;
+                    } else if (transaction.type === 'expense') {
+                        totalExpenses += transaction.amount;
+                    }
+                }
+            });
+
+            const netBalance = totalIncome - totalExpenses;
+
+            monthlyIncomeSpan.textContent = `₹${totalIncome.toFixed(2)}`;
+            monthlyExpensesSpan.textContent = `₹${totalExpenses.toFixed(2)}`;
+            monthlyBalanceSpan.textContent = `₹${netBalance.toFixed(2)}`;
+
+            // Change color of net balance based on value
+            if (netBalance >= 0) {
+                monthlyBalanceSpan.classList.remove('text-red-700');
+                monthlyBalanceSpan.classList.add('text-blue-700');
+            } else {
+                monthlyBalanceSpan.classList.remove('text-blue-700');
+                monthlyBalanceSpan.classList.add('text-red-700');
+            }
+        }
+
+        // Event listener for form submission (Add Expense/Income)
+        transactionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!db || !currentUserId) {
+                console.error("Firebase not initialized or user not authenticated.");
+                showModal("Error", "Firebase not ready or user not authenticated. Please sign in.", () => {});
+                return;
+            }
+
+            const description = descriptionInput.value.trim();
+            const amount = parseFloat(amountInput.value);
+            const date = dateInput.value;
+
+            const submitter = e.submitter;
+            const type = submitter.dataset.type;
+
+            if (!description || isNaN(amount) || amount <= 0 || !date) {
+                showModal("Validation Error", "Please fill in all fields correctly. Amount must be a positive number.", () => {});
+                return;
+            }
+
+            try {
+                // IMPORTANT: Updated collection path to store data under the authenticated user's ID
+                await addDoc(collection(db, `users/${currentUserId}/transactions`), {
+                    description: description,
+                    amount: amount,
+                    date: date,
+                    type: type,
+                    userId: currentUserId, // Store the UID for clarity
+                    timestamp: serverTimestamp()
+                });
+                descriptionInput.value = '';
+                amountInput.value = '';
+                dateInput.value = '';
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                showModal("Error", "Failed to add transaction. Please try again.", () => {});
+            }
+        });
+
+        // Event listener for Apply Filter button
+        applyFilterBtn.addEventListener('click', applyCurrentFilterAndDisplay);
+
+        // Event listener for Clear Filter button
+        clearFilterBtn.addEventListener('click', () => {
+            startDateInput.value = '';
+            endDateInput.value = '';
+            applyCurrentFilterAndDisplay();
+        });
+
+        // Function to export data to CSV
+        exportToExcelBtn.addEventListener('click', () => {
+            if (allTransactions.length === 0) {
+                showModal("No Data", "There is no data to export.", () => {});
+                return;
+            }
+
+            // Define CSV header
+            const header = ['Type', 'Description', 'Amount', 'Date', 'UserID'];
+            let csvContent = header.join(',') + '\n';
+
+            // Add rows
+            allTransactions.forEach(transaction => {
+                const row = [
+                    transaction.type,
+                    `"${transaction.description.replace(/"/g, '""')}"`,
+                    transaction.amount.toFixed(2),
+                    transaction.date,
+                    transaction.userId
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+
+            // Create a Blob and a download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'finance_transactions.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
