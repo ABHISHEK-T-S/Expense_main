@@ -135,22 +135,6 @@
                         Add Income
                     </button>
                 </div>
-                <div id="editButtons" class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 hidden">
-                    <button
-                        type="submit"
-                        id="updateTransactionBtn"
-                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    >
-                        Update Transaction
-                    </button>
-                    <button
-                        type="button"
-                        id="cancelEditBtn"
-                        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                    >
-                        Cancel Edit
-                    </button>
-                </div>
             </form>
         </div>
 
@@ -226,6 +210,61 @@
         </div>
     </div>
 
+    <!-- New Edit Transaction Modal (Hidden by default) -->
+    <div id="editTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300">
+            <h3 class="text-3xl font-bold text-gray-800 mb-6 text-center">Edit Transaction</h3>
+            <form id="editTransactionForm" class="space-y-5">
+                <div>
+                    <label for="editDescription" class="block text-gray-700 text-lg font-medium mb-2">Description</label>
+                    <input
+                        type="text"
+                        id="editDescription"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        required
+                    />
+                </div>
+                <div>
+                    <label for="editAmount" class="block text-gray-700 text-lg font-medium mb-2">Amount</label>
+                    <input
+                        type="number"
+                        id="editAmount"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        step="0.01"
+                        required
+                    />
+                </div>
+                <div>
+                    <label for="editDate" class="block text-gray-700 text-lg font-medium mb-2">Date</label>
+                    <input
+                        type="date"
+                        id="editDate"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        required
+                    />
+                </div>
+                <p id="editError" class="text-red-500 mt-4 text-sm text-center"></p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
+                    <button
+                        type="submit"
+                        id="saveEditBtn"
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    >
+                        Save Changes
+                    </button>
+                    <button
+                        type="button"
+                        id="cancelEditModalBtn"
+                        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <!-- Firebase SDK (Version 11.9.1) -->
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -252,7 +291,7 @@
         let currentUserId = null;
         let currentUserEmail = null;
         let allTransactions = [];
-        let transactionBeingEditedId = null; // New: To store the ID of the transaction being edited
+        let transactionBeingEditedId = null; // To store the ID of the transaction being edited
 
         // Get DOM elements for Auth
         const authModal = document.getElementById('authModal');
@@ -270,10 +309,6 @@
         const descriptionInput = document.getElementById('description');
         const amountInput = document.getElementById('amount');
         const dateInput = document.getElementById('date');
-        const addButtonsDiv = document.getElementById('addButtons'); // New: Div for add buttons
-        const editButtonsDiv = document.getElementById('editButtons'); // New: Div for edit/update/cancel buttons
-        const updateTransactionBtn = document.getElementById('updateTransactionBtn'); // New: Update button
-        const cancelEditBtn = document.getElementById('cancelEditBtn'); // New: Cancel button
         const transactionListDiv = document.getElementById('transactionList');
         const monthlyIncomeSpan = document.getElementById('monthlyIncome');
         const monthlyExpensesSpan = document.getElementById('monthlyExpenses');
@@ -285,6 +320,17 @@
         const exportToExcelBtn = document.getElementById('exportToExcelBtn');
         const userIdDisplay = document.getElementById('userIdDisplay');
         const currentUserIdSpan = document.getElementById('currentUserId');
+
+        // New DOM elements for Edit Transaction Modal
+        const editTransactionModal = document.getElementById('editTransactionModal');
+        const editTransactionForm = document.getElementById('editTransactionForm');
+        const editDescriptionInput = document.getElementById('editDescription');
+        const editAmountInput = document.getElementById('editAmount');
+        const editDateInput = document.getElementById('editDate');
+        const saveEditBtn = document.getElementById('saveEditBtn');
+        const cancelEditModalBtn = document.getElementById('cancelEditModalBtn');
+        const editError = document.getElementById('editError');
+
 
         // Modal elements for confirmations
         const confirmationModal = document.getElementById('confirmationModal');
@@ -563,16 +609,15 @@
 
         // --- New Functions for Edit/Delete ---
 
-        // Function to handle editing a transaction
+        // Function to handle editing a transaction (shows modal)
         function handleEditTransaction(transaction) {
             transactionBeingEditedId = transaction.id; // Store ID of transaction being edited
-            descriptionInput.value = transaction.description;
-            amountInput.value = transaction.amount;
-            dateInput.value = transaction.date;
+            editDescriptionInput.value = transaction.description;
+            editAmountInput.value = transaction.amount;
+            editDateInput.value = transaction.date;
+            editError.textContent = ''; // Clear previous errors
 
-            // Show Update/Cancel buttons, hide Add buttons
-            addButtonsDiv.classList.add('hidden');
-            editButtonsDiv.classList.remove('hidden');
+            editTransactionModal.classList.remove('hidden'); // Show the edit modal
         }
 
         // Function to handle deleting a transaction
@@ -594,33 +639,32 @@
             }
         }
 
-        // Function to reset the form and buttons after edit/cancel
-        function resetFormAndEditMode() {
+        // Function to reset the edit modal and related state
+        function resetEditModal() {
             transactionBeingEditedId = null;
-            descriptionInput.value = '';
-            amountInput.value = '';
-            dateInput.value = '';
-
-            addButtonsDiv.classList.remove('hidden');
-            editButtonsDiv.classList.add('hidden');
+            editDescriptionInput.value = '';
+            editAmountInput.value = '';
+            editDateInput.value = '';
+            editError.textContent = '';
+            editTransactionModal.classList.add('hidden'); // Hide the edit modal
         }
 
-        // Event listener for Update Transaction button
-        updateTransactionBtn.addEventListener('click', async (e) => {
+        // Event listener for Save Changes button in edit modal
+        saveEditBtn.addEventListener('click', async (e) => {
             e.preventDefault();
 
             if (!db || !currentUserId || !transactionBeingEditedId) {
                 console.error("Cannot update: Firebase not ready or no transaction selected for edit.");
-                showModal("Error", "Cannot update. Please select a transaction to edit.", () => {}, "Ok");
+                editError.textContent = "Error: No transaction selected for edit.";
                 return;
             }
 
-            const description = descriptionInput.value.trim();
-            const amount = parseFloat(amountInput.value);
-            const date = dateInput.value;
+            const description = editDescriptionInput.value.trim();
+            const amount = parseFloat(editAmountInput.value);
+            const date = editDateInput.value;
 
             if (!description || isNaN(amount) || amount <= 0 || !date) {
-                showModal("Validation Error", "Please fill in all fields correctly. Amount must be a positive number.", () => {}, "Ok");
+                editError.textContent = "Please fill in all fields correctly. Amount must be a positive number.";
                 return;
             }
 
@@ -633,30 +677,22 @@
                     // Note: Type is not changed during edit to keep it consistent
                 });
                 console.log("Document successfully updated!");
-                resetFormAndEditMode(); // Reset form and buttons
+                resetEditModal(); // Close modal and reset fields
             } catch (error) {
                 console.error("Error updating document: ", error);
-                showModal("Error", "Failed to update transaction. Please try again.", () => {}, "Ok");
+                editError.textContent = "Failed to update transaction. Please try again.";
             }
         });
 
-        // Event listener for Cancel Edit button
-        cancelEditBtn.addEventListener('click', () => {
-            resetFormAndEditMode();
+        // Event listener for Cancel button in edit modal
+        cancelEditModalBtn.addEventListener('click', () => {
+            resetEditModal(); // Close modal and reset fields
         });
 
 
         // Event listener for form submission (Add Expense/Income)
         transactionForm.addEventListener('submit', async (e) => {
-            // Only proceed if not in edit mode (i.e., not triggered by updateTransactionBtn)
-            if (e.submitter && e.submitter.id === 'updateTransactionBtn') {
-                // If the update button was clicked, its event listener will handle it.
-                // Prevent default here to stop form from being resubmitted by general submit listener.
-                e.preventDefault();
-                return;
-            }
-            
-            e.preventDefault(); // Prevent default form submission for add operations too
+            e.preventDefault(); // Always prevent default form submission
 
             if (!db || !currentUserId) {
                 console.error("Firebase not initialized or user not authenticated.");
