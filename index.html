@@ -293,6 +293,10 @@
         let allTransactions = [];
         let transactionBeingEditedId = null; // To store the ID of the transaction being edited
 
+        // Global variable to store the unsubscribe function for Firestore listener
+        let unsubscribeFromTransactions = null;
+
+
         // Get DOM elements for Auth
         const authModal = document.getElementById('authModal');
         const authForm = document.getElementById('authForm');
@@ -440,9 +444,16 @@
                     authModal.classList.add('hidden'); // Hide auth modal
                     appContent.classList.remove('hidden'); // Show app content
                     console.log("Logged in as:", currentUserEmail, "(UID:", currentUserId, ")");
-                    listenForTransactions(); // Start listening for data once authenticated
+                    // Start listening for data and store the unsubscribe function
+                    unsubscribeFromTransactions = listenForTransactions();
                 } else {
                     // User is signed out
+                    // First, stop listening to old data if it exists
+                    if (unsubscribeFromTransactions) {
+                        unsubscribeFromTransactions();
+                        unsubscribeFromTransactions = null;
+                        console.log("Stopped listening to transactions.");
+                    }
                     currentUserId = null;
                     currentUserEmail = null;
                     userIdDisplay.classList.add('hidden');
@@ -460,13 +471,15 @@
         function listenForTransactions() {
             if (!db || !currentUserId) {
                 console.error("Firestore DB or User ID not available for listening.");
-                return;
+                // Return a no-op unsubscribe function if conditions are not met
+                return () => {};
             }
 
             const transactionsCollectionRef = collection(db, `users/${currentUserId}/transactions`);
             const q = query(transactionsCollectionRef);
 
-            onSnapshot(q, (snapshot) => {
+            // onSnapshot returns an unsubscribe function
+            const unsubscribe = onSnapshot(q, (snapshot) => {
                 const transactionsData = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
@@ -477,9 +490,14 @@
                 applyCurrentFilterAndDisplay();
                 updateMonthlySummary();
             }, (error) => {
-                console.error("Error fetching transactions:", error);
-                showModal("Data Fetch Error", "Failed to load transactions. Please check your internet connection.", () => {}, "Ok");
+                console.error("Error fetching transactions in onSnapshot:", error);
+                // Only show modal if still authenticated (i.e., not caused by logout cleanup)
+                if (currentUserId) {
+                    showModal("Data Fetch Error", "Failed to load transactions. Please check your internet connection.", () => {}, "Ok");
+                }
             });
+
+            return unsubscribe; // Return the unsubscribe function
         }
 
         // Function to display transactions based on current filters
