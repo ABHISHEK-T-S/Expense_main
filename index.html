@@ -71,17 +71,17 @@
 
     <!-- Main App Content (Hidden by default until authenticated) -->
     <div id="appContent" class="container max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-2xl border border-gray-200 hidden">
-        <h1 class="text-5xl font-extrabold text-gray-800 mb-8 text-center tracking-tight leading-tight">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-8 text-center tracking-tight leading-tight">
             Personal Finance Tracker
         </h1>
 
-        <!-- User ID Display and Logout Button -->
+        <!-- User ID Display and Profile Button -->
         <div id="userIdDisplay" class="bg-gray-50 p-3 rounded-xl shadow-inner mb-6 text-center flex justify-between items-center">
             <p class="text-gray-600 text-sm">
                 Logged in as: <span id="currentUserId" class="font-semibold text-blue-600 break-words"></span>
             </p>
-            <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
-                Logout
+            <button id="profileBtn" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                Profile
             </button>
         </div>
 
@@ -246,7 +246,7 @@
         const signUpBtn = document.getElementById('signUpBtn');
         const authError = document.getElementById('authError');
         const appContent = document.getElementById('appContent');
-        const logoutBtn = document.getElementById('logoutBtn');
+        const profileBtn = document.getElementById('profileBtn'); // Changed from logoutBtn
 
 
         // Get DOM elements for Finance Tracker
@@ -274,26 +274,47 @@
         const cancelActionBtn = document.getElementById('cancelActionBtn');
 
         // Function to show custom confirmation modal
-        function showModal(title, message, onConfirm) {
+        // Added default text for buttons, allowing dynamic changes
+        function showModal(title, message, onConfirm, confirmText = "Confirm", cancelText = "Cancel") {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
+            confirmActionBtn.textContent = confirmText;
+            cancelActionBtn.textContent = cancelText;
             confirmationModal.classList.remove('hidden');
 
-            const handleConfirm = () => {
+            // Store event listener functions to remove them later
+            let currentConfirmHandler = null;
+            let currentCancelHandler = null;
+
+            currentConfirmHandler = () => {
                 onConfirm();
                 confirmationModal.classList.add('hidden');
-                confirmActionBtn.removeEventListener('click', handleConfirm);
-                cancelActionBtn.removeEventListener('click', handleCancel);
+                confirmActionBtn.removeEventListener('click', currentConfirmHandler);
+                cancelActionBtn.removeEventListener('click', currentCancelHandler);
+                // Reset button texts to default after closing
+                confirmActionBtn.textContent = "Confirm";
+                cancelActionBtn.textContent = "Cancel";
             };
 
-            const handleCancel = () => {
+            currentCancelHandler = () => {
                 confirmationModal.classList.add('hidden');
-                confirmActionBtn.removeEventListener('click', handleConfirm);
-                cancelActionBtn.removeEventListener('click', handleCancel);
+                confirmActionBtn.removeEventListener('click', currentConfirmHandler);
+                cancelActionBtn.removeEventListener('click', currentCancelHandler);
+                confirmActionBtn.textContent = "Confirm";
+                cancelActionBtn.textContent = "Cancel";
             };
 
-            confirmActionBtn.addEventListener('click', handleConfirm);
-            cancelActionBtn.addEventListener('click', handleCancel);
+            // Ensure previous listeners are removed before adding new ones
+            // This prevents multiple calls if the modal is shown multiple times
+            confirmActionBtn.removeEventListener('click', window._tempConfirmHandler);
+            cancelActionBtn.removeEventListener('click', window._tempCancelHandler);
+
+            confirmActionBtn.addEventListener('click', currentConfirmHandler);
+            cancelActionBtn.addEventListener('click', currentCancelHandler);
+
+            // Store the current handlers globally to allow removal on subsequent calls
+            window._tempConfirmHandler = currentConfirmHandler;
+            window._tempCancelHandler = currentCancelHandler;
         }
 
         // --- Authentication Functions ---
@@ -328,16 +349,22 @@
             }
         });
 
-        // Handle Logout
-        logoutBtn.addEventListener('click', async () => {
-            showModal("Confirm Logout", "Are you sure you want to log out?", async () => {
-                try {
-                    await signOut(auth);
-                } catch (error) {
-                    console.error("Logout Error:", error);
-                    showModal("Logout Error", "Failed to log out. Please try again.", () => {});
-                }
-            });
+        // Handle Profile Button click (now triggers logout modal)
+        profileBtn.addEventListener('click', async () => {
+            showModal(
+                "User Profile",
+                `You are logged in as: ${currentUserEmail}`,
+                async () => {
+                    try {
+                        await signOut(auth);
+                    } catch (error) {
+                        console.error("Logout Error:", error);
+                        showModal("Logout Error", "Failed to log out. Please try again.", () => {}, "Ok");
+                    }
+                },
+                "Logout", // Text for the confirm button
+                "Close"   // Text for the cancel button
+            );
         });
 
         // --- Firebase Initialization and Auth State Listener ---
@@ -346,7 +373,7 @@
                 if (user) {
                     // User is signed in
                     currentUserId = user.uid;
-                    currentUserEmail = user.email || 'Anonymous'; // Use email or fallback
+                    currentUserEmail = user.email || 'N/A'; // Use email or fallback
                     currentUserIdSpan.textContent = currentUserEmail;
                     userIdDisplay.classList.remove('hidden');
                     authModal.classList.add('hidden'); // Hide auth modal
@@ -375,22 +402,6 @@
                 return;
             }
 
-            // IMPORTANT: Updated Firestore path for private user data
-            // Make sure your Firestore Security Rules allow read/write to this path
-            // for the authenticated user only.
-            // Example Security Rules (go to Firebase Console > Firestore Database > Rules):
-            /*
-            rules_version = '2';
-            service cloud.firestore {
-              match /databases/{database}/documents {
-                // Allow read/write access ONLY if the user is authenticated
-                // AND the userId in the path matches the authenticated user's UID
-                match /users/{userId}/transactions/{transactionId} {
-                  allow read, write: if request.auth != null && request.auth.uid == userId;
-                }
-              }
-            }
-            */
             const transactionsCollectionRef = collection(db, `users/${currentUserId}/transactions`);
             const q = query(transactionsCollectionRef);
 
@@ -406,7 +417,7 @@
                 updateMonthlySummary();
             }, (error) => {
                 console.error("Error fetching transactions:", error);
-                showModal("Data Fetch Error", "Failed to load transactions. Please check your internet connection.", () => {});
+                showModal("Data Fetch Error", "Failed to load transactions. Please check your internet connection.", () => {}, "Ok");
             });
         }
 
@@ -500,7 +511,7 @@
             
             if (!db || !currentUserId) {
                 console.error("Firebase not initialized or user not authenticated.");
-                showModal("Error", "Firebase not ready or user not authenticated. Please sign in.", () => {});
+                showModal("Error", "Firebase not ready or user not authenticated. Please sign in.", () => {}, "Ok");
                 return;
             }
 
@@ -512,18 +523,17 @@
             const type = submitter.dataset.type;
 
             if (!description || isNaN(amount) || amount <= 0 || !date) {
-                showModal("Validation Error", "Please fill in all fields correctly. Amount must be a positive number.", () => {});
+                showModal("Validation Error", "Please fill in all fields correctly. Amount must be a positive number.", () => {}, "Ok");
                 return;
             }
 
             try {
-                // IMPORTANT: Updated collection path to store data under the authenticated user's ID
                 await addDoc(collection(db, `users/${currentUserId}/transactions`), {
                     description: description,
                     amount: amount,
                     date: date,
                     type: type,
-                    userId: currentUserId, // Store the UID for clarity
+                    userId: currentUserId,
                     timestamp: serverTimestamp()
                 });
                 descriptionInput.value = '';
@@ -531,7 +541,7 @@
                 dateInput.value = '';
             } catch (error) {
                 console.error("Error adding document: ", error);
-                showModal("Error", "Failed to add transaction. Please try again.", () => {});
+                showModal("Error", "Failed to add transaction. Please try again.", () => {}, "Ok");
             }
         });
 
@@ -548,7 +558,7 @@
         // Function to export data to CSV
         exportToExcelBtn.addEventListener('click', () => {
             if (allTransactions.length === 0) {
-                showModal("No Data", "There is no data to export.", () => {});
+                showModal("No Data", "There is no data to export.", () => {}, "Ok");
                 return;
             }
 
