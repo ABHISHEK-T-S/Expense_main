@@ -1,0 +1,21 @@
+{
+    "name": "Finance Tracker",
+    "short_name": "FinTracker",
+    "description": "Your personal finance tracker to manage income and expenses.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#eff6ff",
+    "theme_color": "#4f46e5",
+    "icons": [
+        {
+            "src": "icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
