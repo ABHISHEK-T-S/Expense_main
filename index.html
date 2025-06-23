@@ -21,7 +21,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-center justify-center py-8">
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-start justify-center pb-8">
 
     <div id="authModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-blue-300">
@@ -143,6 +143,10 @@
             <div id="transactionList" class="space-y-3 mb-6">
                 <p class="text-center text-gray-500 text-lg">No transactions yet. Add some!</p>
             </div>
+
+            <button id="loadMoreBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg shadow-md mb-6 hidden transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                Load More Transactions
+            </button>
 
             <button id="exportToExcelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 Export to Excel (CSV)
@@ -303,6 +307,8 @@
         let transactionBeingEditedId = null; // To store the ID of the transaction being edited
         let currentAddTransactionType = null; // To store 'income' or 'expense' when adding
 
+        let transactionsDisplayLimit = 5; // NEW GLOBAL VARIABLE
+
         // Global variable to store the unsubscribe function for Firestore listener
         let unsubscribeFromTransactions = null;
 
@@ -333,6 +339,8 @@
         const exportToExcelBtn = document.getElementById('exportToExcelBtn');
         const userIdDisplay = document.getElementById('userIdDisplay');
         const currentUserIdSpan = document.getElementById('currentUserId');
+        const loadMoreBtn = document.getElementById('loadMoreBtn'); // NEW DOM ELEMENT
+        
 
         // New DOM elements for Add Transaction Modal
         const addTransactionModal = document.getElementById('addTransactionModal');
@@ -465,6 +473,7 @@
                     authModal.classList.add('hidden'); // Hide auth modal
                     appContent.classList.remove('hidden'); // Show app content
                     console.log("Logged in as:", currentUserEmail, "(UID:", currentUserId, ")");
+                    transactionsDisplayLimit = 5; // Reset limit on login
                     // Start listening for data and store the unsubscribe function
                     unsubscribeFromTransactions = listenForTransactions();
                 } else {
@@ -528,23 +537,37 @@
             const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
             const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
 
-            if (startDate && endDate) {
+            let isFilterActive = false;
+            if (startDate || endDate) {
+                isFilterActive = true;
                 filteredTransactions = filteredTransactions.filter(t => {
                     const transactionDate = new Date(t.date);
-                    // Set both dates to start of day for accurate comparison
-                    const startOfDay = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-                    const endOfDay = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999);
-                    return transactionDate >= startOfDay && transactionDate <= endOfDay;
+                    const startOfDay = startDate ? new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) : null;
+                    const endOfDay = endDate ? new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999) : null;
+
+                    const matchesStart = startOfDay ? transactionDate >= startOfDay : true;
+                    const matchesEnd = endOfDay ? transactionDate <= endOfDay : true;
+                    
+                    return matchesStart && matchesEnd;
                 });
-            } else if (startDate) {
-                const startOfDay = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-                filteredTransactions = filteredTransactions.filter(t => new Date(t.date) >= startOfDay);
-            } else if (endDate) {
-                const endOfDay = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999);
-                filteredTransactions = filteredTransactions.filter(t => new Date(t.date) <= endOfDay);
             }
             
-            displayTransactions(filteredTransactions);
+            // If no date filter is active, only show up to transactionsDisplayLimit
+            let transactionsToShow = filteredTransactions;
+            if (!isFilterActive) {
+                transactionsToShow = filteredTransactions.slice(0, transactionsDisplayLimit);
+                // Show/hide load more button
+                if (transactionsDisplayLimit < filteredTransactions.length) {
+                    loadMoreBtn.classList.remove('hidden');
+                } else {
+                    loadMoreBtn.classList.add('hidden');
+                }
+            } else {
+                // If a filter is applied, always show all filtered results and hide load more
+                loadMoreBtn.classList.add('hidden');
+            }
+
+            displayTransactions(transactionsToShow); // Pass the potentially sliced array
         }
 
         // Function to render transactions to the UI
@@ -558,19 +581,18 @@
 
             transactionsToDisplay.forEach(transaction => {
                 const listItem = document.createElement('div');
-                listItem.classList.add('flex', 'justify-between', 'items-center', 'p-4', 'rounded-lg', 'shadow-sm', 'border', 'border-gray-200');
+                // Ensure the main container is a flexbox and items are aligned
+                listItem.classList.add('flex', 'justify-between', 'items-center', 'p-4', 'rounded-lg', 'shadow-sm', 'border', 'border-gray-200', 'flex-wrap', 'sm:flex-nowrap'); // Added flex-wrap for smaller screens
 
                 const amountClass = transaction.type === 'expense' ? 'text-red-600' : 'text-green-600';
                 const sign = transaction.type === 'expense' ? '-' : '+';
 
                 listItem.innerHTML = `
-                    <div class="flex flex-col flex-grow">
-                        <span class="text-gray-800 font-semibold text-lg">${transaction.description}</span>
-                        <span class="text-gray-500 text-sm">${transaction.date}</span>
+                    <div class="flex flex-col flex-grow min-w-0 mr-4"> <span class="text-gray-800 font-semibold text-lg truncate">${transaction.description}</span> <span class="text-gray-500 text-sm">${transaction.date}</span>
                     </div>
-                    <span class="${amountClass} font-bold text-xl mr-4 whitespace-nowrap">${sign} ₹${transaction.amount.toFixed(2)}</span>
-                    <div class="flex space-x-2">
-                        <button class="edit-btn bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-md shadow-sm transition duration-200" data-id="${transaction.id}">
+                    <span class="${amountClass} font-bold text-xl mr-4 text-right flex-shrink-0"> ${sign} ₹${transaction.amount.toFixed(2)}
+                    </span>
+                    <div class="flex space-x-2 flex-shrink-0 ml-auto"> <button class="edit-btn bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-md shadow-sm transition duration-200" data-id="${transaction.id}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
@@ -609,7 +631,6 @@
                 };
             });
         }
-
         // Function to update monthly summary
         function updateMonthlySummary() {
             const now = new Date();
@@ -812,7 +833,14 @@
         clearFilterBtn.addEventListener('click', () => {
             startDateInput.value = '';
             endDateInput.value = '';
+            transactionsDisplayLimit = 5; // Reset limit on clear filter
             applyCurrentFilterAndDisplay();
+        });
+
+        // Event listener for Load More button
+        loadMoreBtn.addEventListener('click', () => {
+            transactionsDisplayLimit += 10; // Increase limit by 10
+            applyCurrentFilterAndDisplay(); // Re-apply filter and re-render
         });
 
         // Function to export data to CSV
