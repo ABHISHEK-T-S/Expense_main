@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Tracker</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -24,7 +22,6 @@
 </head>
 <body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-center justify-center py-8">
 
-    <!-- Authentication Modal (Visible by default until authenticated) -->
     <div id="authModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-blue-300">
             <h2 class="text-4xl font-extrabold text-gray-800 mb-6">Welcome to Finance Tracker</h2>
@@ -69,13 +66,11 @@
         </div>
     </div>
 
-    <!-- Main App Content (Hidden by default until authenticated) -->
     <div id="appContent" class="container max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-2xl border border-gray-200 hidden">
         <h1 class="text-4xl font-extrabold text-gray-800 mb-8 text-center tracking-tight leading-tight">
             Personal Finance Tracker
         </h1>
 
-        <!-- User ID Display and Profile Button -->
         <div id="userIdDisplay" class="bg-gray-50 p-3 rounded-xl shadow-inner mb-6 text-center flex justify-between items-center">
             <p class="text-gray-600 text-sm">
                 Logged in as: <span id="currentUserId" class="font-semibold text-blue-600 break-words"></span>
@@ -85,60 +80,6 @@
             </button>
         </div>
 
-        <!-- Add Transaction Section -->
-        <div class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-8 border border-indigo-200">
-            <h2 class="text-3xl font-bold text-indigo-800 mb-6 text-center">Add New Transaction</h2>
-            <form id="transactionForm" class="space-y-6">
-                <div>
-                    <label for="description" class="block text-gray-700 text-lg font-medium mb-2">Description</label>
-                    <input
-                        type="text"
-                        id="description"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-200"
-                        placeholder="e.g., Groceries, Salary, Rent"
-                        required
-                    />
-                </div>
-                <div>
-                    <label for="amount" class="block text-gray-700 text-lg font-medium mb-2">Amount</label>
-                    <input
-                        type="number"
-                        id="amount"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-200"
-                        placeholder="e.g., 50.00"
-                        step="0.01"
-                        required
-                    />
-                </div>
-                <div>
-                    <label for="date" class="block text-gray-700 text-lg font-medium mb-2">Date</label>
-                    <input
-                        type="date"
-                        id="date"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-200"
-                        required
-                    />
-                </div>
-                <div id="addButtons" class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <button
-                        type="submit"
-                        data-type="expense"
-                        class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                    >
-                        Add Expense
-                    </button>
-                    <button
-                        type="submit"
-                        data-type="income"
-                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                    >
-                        Add Income
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Monthly Summary -->
         <div class="bg-purple-50 p-6 rounded-xl shadow-lg mb-8 border border-purple-200">
             <h2 class="text-3xl font-bold text-purple-800 mb-4 text-center">This Month's Summary</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
@@ -157,11 +98,27 @@
             </div>
         </div>
 
-        <!-- Transaction History & Filters -->
+        <div class="bg-indigo-50 p-8 rounded-xl shadow-lg mb-8 border border-indigo-200">
+            <h2 class="text-3xl font-bold text-indigo-800 mb-6 text-center">Add New Transaction</h2>
+            <div id="addTransactionButtons" class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <button
+                    id="addExpenseBtn"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                >
+                    Add Expense
+                </button>
+                <button
+                    id="addIncomeBtn"
+                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >
+                    Add Income
+                </button>
+            </div>
+        </div>
+
         <div class="bg-gray-50 p-8 rounded-xl shadow-lg border border-gray-200">
             <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Transaction History</h2>
 
-            <!-- Filter by Date -->
             <div class="mb-6 bg-white p-5 rounded-lg shadow-sm border border-gray-300">
                 <h3 class="text-xl font-semibold text-gray-700 mb-3">Filter Transactions</h3>
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end">
@@ -182,19 +139,16 @@
                 </div>
             </div>
 
-            <!-- Transaction List -->
             <div id="transactionList" class="space-y-3 mb-6">
                 <p class="text-center text-gray-500 text-lg">No transactions yet. Add some!</p>
             </div>
 
-            <!-- Export to Excel Button -->
             <button id="exportToExcelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 Export to Excel (CSV)
             </button>
         </div>
     </div>
 
-    <!-- Confirmation Modal Structure (Hidden by default) -->
     <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-gray-300">
             <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4"></h3>
@@ -210,7 +164,62 @@
         </div>
     </div>
 
-    <!-- New Edit Transaction Modal (Hidden by default) -->
+    <div id="addTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300">
+            <h3 id="addModalTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center">Add New Transaction</h3>
+            <form id="addTransactionForm" class="space-y-5">
+                <div>
+                    <label for="addDescription" class="block text-gray-700 text-lg font-medium mb-2">Description</label>
+                    <input
+                        type="text"
+                        id="addDescription"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="e.g., Groceries, Salary, Rent"
+                        required
+                    />
+                </div>
+                <div>
+                    <label for="addAmount" class="block text-gray-700 text-lg font-medium mb-2">Amount</label>
+                    <input
+                        type="number"
+                        id="addAmount"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="e.g., 50.00"
+                        step="0.01"
+                        required
+                    />
+                </div>
+                <div>
+                    <label for="addDate" class="block text-gray-700 text-lg font-medium mb-2">Date</label>
+                    <input
+                        type="date"
+                        id="addDate"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        required
+                    />
+                </div>
+                <p id="addError" class="text-red-500 mt-4 text-sm text-center"></p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
+                    <button
+                        type="submit"
+                        id="confirmAddTransactionBtn"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    >
+                        Confirm Add
+                    </button>
+                    <button
+                        type="button"
+                        id="cancelAddModalBtn"
+                        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <div id="editTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300">
             <h3 class="text-3xl font-bold text-gray-800 mb-6 text-center">Edit Transaction</h3>
@@ -265,7 +274,6 @@
     </div>
 
 
-    <!-- Firebase SDK (Version 11.9.1) -->
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -292,6 +300,7 @@
         let currentUserEmail = null;
         let allTransactions = [];
         let transactionBeingEditedId = null; // To store the ID of the transaction being edited
+        let currentAddTransactionType = null; // To store 'income' or 'expense' when adding
 
         // Global variable to store the unsubscribe function for Firestore listener
         let unsubscribeFromTransactions = null;
@@ -308,11 +317,15 @@
         const appContent = document.getElementById('appContent');
         const profileBtn = document.getElementById('profileBtn');
 
-        // Get DOM elements for Finance Tracker
-        const transactionForm = document.getElementById('transactionForm');
-        const descriptionInput = document.getElementById('description');
-        const amountInput = document.getElementById('amount');
-        const dateInput = document.getElementById('date');
+        // Get DOM elements for Finance Tracker (some changed/removed)
+        // const transactionForm = document.getElementById('transactionForm'); // REMOVED
+        // const descriptionInput = document.getElementById('description'); // REMOVED
+        // const amountInput = document.getElementById('amount'); // REMOVED
+        // const dateInput = document.getElementById('date'); // REMOVED
+
+        const addExpenseBtn = document.getElementById('addExpenseBtn'); // NEW
+        const addIncomeBtn = document.getElementById('addIncomeBtn');   // NEW
+
         const transactionListDiv = document.getElementById('transactionList');
         const monthlyIncomeSpan = document.getElementById('monthlyIncome');
         const monthlyExpensesSpan = document.getElementById('monthlyExpenses');
@@ -325,7 +338,19 @@
         const userIdDisplay = document.getElementById('userIdDisplay');
         const currentUserIdSpan = document.getElementById('currentUserId');
 
-        // New DOM elements for Edit Transaction Modal
+        // New DOM elements for Add Transaction Modal
+        const addTransactionModal = document.getElementById('addTransactionModal');
+        const addModalTitle = document.getElementById('addModalTitle');
+        const addTransactionForm = document.getElementById('addTransactionForm');
+        const addDescriptionInput = document.getElementById('addDescription');
+        const addAmountInput = document.getElementById('addAmount');
+        const addDateInput = document.getElementById('addDate');
+        const confirmAddTransactionBtn = document.getElementById('confirmAddTransactionBtn');
+        const cancelAddModalBtn = document.getElementById('cancelAddModalBtn');
+        const addError = document.getElementById('addError');
+
+
+        // Existing DOM elements for Edit Transaction Modal
         const editTransactionModal = document.getElementById('editTransactionModal');
         const editTransactionForm = document.getElementById('editTransactionForm');
         const editDescriptionInput = document.getElementById('editDescription');
@@ -625,7 +650,84 @@
             }
         }
 
-        // --- New Functions for Edit/Delete ---
+        // --- New Functions for Add Transaction Modal ---
+
+        // Function to open the Add Transaction modal
+        function openAddTransactionModal(type) {
+            currentAddTransactionType = type;
+            addModalTitle.textContent = `Add New ${type === 'income' ? 'Income' : 'Expense'}`;
+            // Pre-fill date with today's date
+            addDateInput.value = new Date().toISOString().slice(0, 10);
+            addDescriptionInput.value = '';
+            addAmountInput.value = '';
+            addError.textContent = ''; // Clear previous errors
+            addTransactionModal.classList.remove('hidden');
+        }
+
+        // Event listener for "Add Expense" button
+        addExpenseBtn.addEventListener('click', () => {
+            openAddTransactionModal('expense');
+        });
+
+        // Event listener for "Add Income" button
+        addIncomeBtn.addEventListener('click', () => {
+            openAddTransactionModal('income');
+        });
+
+        // Event listener for "Confirm Add" button inside the Add Transaction modal
+        addTransactionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!db || !currentUserId || !currentAddTransactionType) {
+                console.error("Firebase not initialized, user not authenticated, or transaction type not set.");
+                addError.textContent = "Error: Cannot add transaction. Please try again.";
+                return;
+            }
+
+            const description = addDescriptionInput.value.trim();
+            const amount = parseFloat(addAmountInput.value);
+            const date = addDateInput.value;
+            const type = currentAddTransactionType; // Use the stored type
+
+            if (!description || isNaN(amount) || amount <= 0 || !date) {
+                addError.textContent = "Please fill in all fields correctly. Amount must be a positive number.";
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, `users/${currentUserId}/transactions`), {
+                    description: description,
+                    amount: amount,
+                    date: date,
+                    type: type,
+                    userId: currentUserId,
+                    timestamp: serverTimestamp()
+                });
+                console.log("Transaction successfully added!");
+                resetAddModal(); // Close modal and reset fields
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                addError.textContent = "Failed to add transaction. Please try again.";
+            }
+        });
+
+        // Event listener for "Cancel" button in the Add Transaction modal
+        cancelAddModalBtn.addEventListener('click', () => {
+            resetAddModal();
+        });
+
+        // Function to reset and hide the Add Transaction modal
+        function resetAddModal() {
+            addDescriptionInput.value = '';
+            addAmountInput.value = '';
+            addDateInput.value = '';
+            addError.textContent = '';
+            currentAddTransactionType = null;
+            addTransactionModal.classList.add('hidden');
+        }
+
+
+        // --- Existing Functions for Edit/Delete ---
 
         // Function to handle editing a transaction (shows modal)
         function handleEditTransaction(transaction) {
@@ -705,47 +807,6 @@
         // Event listener for Cancel button in edit modal
         cancelEditModalBtn.addEventListener('click', () => {
             resetEditModal(); // Close modal and reset fields
-        });
-
-
-        // Event listener for form submission (Add Expense/Income)
-        transactionForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Always prevent default form submission
-
-            if (!db || !currentUserId) {
-                console.error("Firebase not initialized or user not authenticated.");
-                showModal("Error", "Firebase not ready or user not authenticated. Please sign in.", () => {}, "Ok");
-                return;
-            }
-
-            const description = descriptionInput.value.trim();
-            const amount = parseFloat(amountInput.value);
-            const date = dateInput.value;
-
-            const submitter = e.submitter;
-            const type = submitter.dataset.type; // 'expense' or 'income'
-
-            if (!description || isNaN(amount) || amount <= 0 || !date) {
-                showModal("Validation Error", "Please fill in all fields correctly. Amount must be a positive number.", () => {}, "Ok");
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, `users/${currentUserId}/transactions`), {
-                    description: description,
-                    amount: amount,
-                    date: date,
-                    type: type,
-                    userId: currentUserId,
-                    timestamp: serverTimestamp()
-                });
-                descriptionInput.value = '';
-                amountInput.value = '';
-                dateInput.value = '';
-            } catch (error) {
-                console.error("Error adding document: ", error);
-                showModal("Error", "Failed to add transaction. Please try again.", () => {}, "Ok");
-            }
         });
 
         // Event listener for Apply Filter button
