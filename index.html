@@ -347,6 +347,28 @@
         </div>
     </div>
 
+    <!-- Gemini AI Assistant Button (hidden by default) -->
+    <button id="geminiOpenBtn" class="fixed bottom-6 right-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg p-3 z-50 flex items-center justify-center"
+            style="display: block;">
+        <!-- Chat icon SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 21l1.8-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+    </button>
+
+    <!-- Gemini Chat Popup (hidden by default) -->
+    <div id="geminiChat" class="fixed bottom-4 right-4 bg-white rounded-xl shadow-lg p-4 w-80 border border-gray-300 z-50"
+         style="display: none;">
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="font-bold text-indigo-700">Gemini AI Assistant</h3>
+            <button id="geminiCloseBtn" class="text-gray-400 hover:text-red-500 text-xl font-bold ml-2" title="Close">&times;</button>
+        </div>
+        <div id="geminiMessages" class="h-40 overflow-y-auto mb-2 text-sm"></div>
+        <form id="geminiForm" class="flex">
+            <input id="geminiInput" type="text" class="flex-1 border rounded-l px-2 py-1" placeholder="Ask Gemini..." required>
+            <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded-r">Send</button>
+        </form>
+    </div>
 
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -1081,6 +1103,63 @@
             });
         }
         // End PWA registration
+
+        const geminiForm = document.getElementById('geminiForm');
+        const geminiInput = document.getElementById('geminiInput');
+        const geminiMessages = document.getElementById('geminiMessages');
+
+        geminiForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userMsg = geminiInput.value.trim();
+            if (!userMsg) return;
+            geminiMessages.innerHTML += `<div class="mb-1"><b>You:</b> ${userMsg}</div>`;
+            geminiInput.value = '';
+            geminiMessages.innerHTML += `<div class="mb-1 text-gray-400">Gemini is typing...</div>`;
+            geminiMessages.scrollTop = geminiMessages.scrollHeight;
+
+            // Use Gemini 2.5 Flash model and your actual API key from Google AI Studio
+            const apiKey = 'AIzaSyB6GKF6P3CRlU8UEfX881QcsHpe_JxSVZk'; // Replace with your actual key
+            const url = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + apiKey;
+
+            const body = {
+                contents: [{ parts: [{ text: userMsg }] }]
+            };
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                const geminiText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.';
+                geminiMessages.innerHTML += `<div class="mb-2"><b>Gemini:</b> ${geminiText}</div>`;
+            } catch (err) {
+                geminiMessages.innerHTML += `<div class="mb-2 text-red-500">Error: ${err.message}</div>`;
+            }
+            geminiMessages.scrollTop = geminiMessages.scrollHeight;
+        });
+
+        // Gemini AI Assistant popup logic
+        const geminiOpenBtn = document.getElementById('geminiOpenBtn');
+        const geminiChat = document.getElementById('geminiChat');
+        const geminiCloseBtn = document.getElementById('geminiCloseBtn');
+
+        // Hide chat by default, show only the button
+        geminiChat.style.display = 'none';
+        geminiOpenBtn.style.display = 'block';
+
+        // Open Gemini chat popup
+        geminiOpenBtn.addEventListener('click', () => {
+            geminiChat.style.display = 'block';
+            geminiOpenBtn.style.display = 'none';
+        });
+
+        // Close Gemini chat popup
+        geminiCloseBtn.addEventListener('click', () => {
+            geminiChat.style.display = 'none';
+            geminiOpenBtn.style.display = 'block';
+        });
     </script>
 </body>
 </html>
