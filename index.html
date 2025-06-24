@@ -1500,7 +1500,7 @@
                 const geminiText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from Gemini.';
 
                 const typingBubble = geminiMessages.querySelector('.gemini-typing');
-                if (typingBubble) typing_bubble.remove();
+                if (typingBubble) typingBubble.remove();
 
                 geminiMessages.innerHTML += `
                     <div class="flex justify-start mb-2">
