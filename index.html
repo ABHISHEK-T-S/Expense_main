@@ -19,13 +19,64 @@
         .min-h-screen {
             min-height: 100vh;
         }
+        /* Custom animation for modal */
+        .modal-enter-active, .modal-leave-active {
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .modal-enter-from, .modal-leave-to {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+        .modal-open .modal-enter-from, .modal-open .modal-leave-to {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+        .modal-open .modal-enter-active .modal-content,
+        .modal-open .modal-leave-active .modal-content {
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .modal-open .modal-enter-from .modal-content,
+        .modal-open .modal-leave-to .modal-content {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.95);
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* NEW: Styles for hideable history section */
+        #historyContent {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden; /* Ensures content is clipped when collapsed */
+            transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+        }
+
+        #historyContent.is-active {
+            max-height: max-content; /* FIX: This will allow it to expand to content height */
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-start justify-center pb-8">
 
-    <!-- Authentication Modal -->
-    <div id="authModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-blue-300">
+    <div id="authModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 modal-enter-from">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-blue-300 modal-content">
             <h2 class="text-4xl font-extrabold text-gray-800 mb-6">Welcome to Finance Tracker</h2>
             <p class="text-gray-600 mb-6">Sign in or create an account to manage your finances.</p>
             <form id="authForm" class="space-y-5">
@@ -51,30 +102,28 @@
                     <button
                         type="submit"
                         id="signInBtn"
-                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center"
                     >
-                        Sign In
+                        Sign In <span id="signInLoader" class="loader hidden"></span>
                     </button>
                     <button
                         type="submit"
                         id="signUpBtn"
-                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center"
                     >
-                        Sign Up
+                        Sign Up <span id="signUpLoader" class="loader hidden"></span>
                     </button>
                 </div>
             </form>
-            <p id="authError" class="text-red-500 mt-4 text-sm"></p>
+            <p id="authError" class="text-red-600 mt-4 text-sm font-semibold"></p>
         </div>
     </div>
 
-    <!-- Main Application Content -->
     <div id="appContent" class="container max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-2xl border border-gray-200 hidden">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight leading-tight">
                 Finance Tracker
             </h1>
-            <!-- User ID and Profile Button - positioned at top right -->
             <div id="userIdDisplay" class="flex items-center space-x-2">
                 <p class="text-gray-600 text-sm hidden sm:block">
                     Logged in as: <span id="currentUserId" class="font-semibold text-blue-600 break-words"></span>
@@ -85,26 +134,23 @@
             </div>
         </div>
 
-        <!-- Monthly Summary Section - Smaller and more compact -->
-        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-5 rounded-xl shadow-lg mb-8 border border-blue-400">
+        <div class="bg-gradient-to-r from-blue-600 to-purple-700 text-white p-6 rounded-xl shadow-xl mb-8 border border-blue-500">
             <h2 class="text-2xl font-bold mb-4 text-center">Your Monthly Snapshot</h2>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                <div class="flex flex-col items-center justify-center">
+                <div class="flex flex-col items-center justify-center p-2">
                     <p class="text-sm opacity-90">Income</p>
-                    <p id="monthlyIncome" class="text-2xl font-extrabold mt-1">₹0.00</p>
+                    <p id="monthlyIncome" class="text-3xl font-extrabold mt-1">₹0.00</p>
                 </div>
-                <div class="flex flex-col items-center justify-center">
+                <div class="flex flex-col items-center justify-center p-2">
                     <p class="text-sm opacity-90">Expenses</p>
-                    <p id="monthlyExpenses" class="text-2xl font-extrabold mt-1">₹0.00</p>
+                    <p id="monthlyExpenses" class="text-3xl font-extrabold mt-1">₹0.00</p>
                 </div>
-                <div class="flex flex-col items-center justify-center">
-                    <p class="text-sm opacity-90">Balance</p>
-                    <p id="monthlyBalance" class="text-2xl font-extrabold mt-1">₹0.00</p>
+                <div class="flex flex-col items-center justify-center p-2">
+                    <p id="monthlyBalance" class="text-3xl font-extrabold mt-1 transition-colors duration-300">₹0.00</p>
                 </div>
             </div>
         </div>
 
-        <!-- Add New Transaction Buttons -->
         <div class="bg-indigo-50 p-6 rounded-xl shadow-lg mb-8 border border-indigo-200">
             <h2 class="text-2xl font-bold text-indigo-800 mb-4 text-center">Add New Transaction</h2>
             <div id="addTransactionButtons" class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
@@ -129,47 +175,52 @@
             </div>
         </div>
 
-        <!-- Transaction History Section -->
         <div class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Transaction History</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Transaction History</h2>
+                <button id="toggleHistoryBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                    Show History
+                </button>
+            </div>
 
-            <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-300">
-                <h3 class="text-xl font-semibold text-gray-700 mb-3">Filter Transactions</h3>
-                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end">
-                    <div class="flex-1 w-full">
-                        <label for="startDate" class="block text-gray-700 text-sm font-medium mb-1">Start Date</label>
-                        <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none">
+            <div id="historyContent">
+                <div class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-300">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-3">Filter Transactions</h3>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end">
+                        <div class="flex-1 w-full">
+                            <label for="startDate" class="block text-gray-700 text-sm font-medium mb-1">Start Date</label>
+                            <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
+                        </div>
+                        <div class="flex-1 w-full">
+                            <label for="endDate" class="block text-gray-700 text-sm font-medium mb-1">End Date</label>
+                            <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
+                        </div>
+                        <button id="applyFilterBtn" class="w-full sm:w-auto px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            Apply Filter
+                        </button>
+                        <button id="clearFilterBtn" class="w-full sm:w-auto px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                            Clear
+                        </button>
                     </div>
-                    <div class="flex-1 w-full">
-                        <label for="endDate" class="block text-gray-700 text-sm font-medium mb-1">End Date</label>
-                        <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none">
-                    </div>
-                    <button id="applyFilterBtn" class="w-full sm:w-auto px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        Apply Filter
-                    </button>
-                    <button id="clearFilterBtn" class="w-full sm:w-auto px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
-                        Clear
-                    </button>
                 </div>
+
+                <div id="transactionList" class="space-y-4 mb-6">
+                    <p class="text-center text-gray-500 text-lg py-4">No transactions to display.</p>
+                </div>
+
+                <button id="loadMoreBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg shadow-md mb-6 hidden transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                    Load More Transactions
+                </button>
+
+                <button id="exportToExcelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Export to Excel (CSV)
+                </button>
             </div>
-
-            <div id="transactionList" class="space-y-3 mb-6">
-                <p class="text-center text-gray-500 text-lg">No transactions yet. Add some!</p>
-            </div>
-
-            <button id="loadMoreBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg shadow-md mb-6 hidden transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
-                Load More Transactions
-            </button>
-
-            <button id="exportToExcelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Export to Excel (CSV)
-            </button>
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
-    <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-gray-300">
+    <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden modal-enter-from">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-gray-300 modal-content">
             <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4"></h3>
             <p id="modalMessage" class="text-gray-600 text-lg mb-6"></p>
             <div class="flex justify-center space-x-4">
@@ -183,9 +234,8 @@
         </div>
     </div>
 
-    <!-- Add Transaction Modal -->
-    <div id="addTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300">
+    <div id="addTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden modal-enter-from">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300 modal-content">
             <h3 id="addModalTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center">Add New Transaction</h3>
             <form id="addTransactionForm" class="space-y-5">
                 <div>
@@ -218,14 +268,14 @@
                         required
                     />
                 </div>
-                <p id="addError" class="text-red-500 mt-4 text-sm text-center"></p>
+                <p id="addError" class="text-red-600 mt-4 text-sm text-center font-semibold"></p>
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
                     <button
                         type="submit"
                         id="confirmAddTransactionBtn"
-                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center"
                     >
-                        Confirm Add
+                        Confirm Add <span id="addLoader" class="loader hidden"></span>
                     </button>
                     <button
                         type="button"
@@ -239,9 +289,8 @@
         </div>
     </div>
 
-    <!-- Edit Transaction Modal -->
-    <div id="editTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300">
+    <div id="editTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden modal-enter-from">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300 modal-content">
             <h3 class="text-3xl font-bold text-gray-800 mb-6 text-center">Edit Transaction</h3>
             <form id="editTransactionForm" class="space-y-5">
                 <div>
@@ -272,14 +321,14 @@
                         required
                     />
                 </div>
-                <p id="editError" class="text-red-500 mt-4 text-sm text-center"></p>
+                <p id="editError" class="text-red-600 mt-4 text-sm text-center font-semibold"></p>
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
                     <button
                         type="submit"
                         id="saveEditBtn"
-                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center"
                     >
-                        Save Changes
+                        Save Changes <span id="editLoader" class="loader hidden"></span>
                     </button>
                     <button
                         type="button"
@@ -339,6 +388,11 @@
         const appContent = document.getElementById('appContent');
         const profileBtn = document.getElementById('profileBtn');
 
+        // NEW: Loaders for auth buttons
+        const signInLoader = document.getElementById('signInLoader');
+        const signUpLoader = document.getElementById('signUpLoader');
+
+
         // Get DOM elements for Finance Tracker (some changed/removed)
         const addExpenseBtn = document.getElementById('addExpenseBtn');
         const addIncomeBtn = document.getElementById('addIncomeBtn');
@@ -354,7 +408,11 @@
         const exportToExcelBtn = document.getElementById('exportToExcelBtn');
         const userIdDisplay = document.getElementById('userIdDisplay');
         const currentUserIdSpan = document.getElementById('currentUserId');
-        const loadMoreBtn = document.getElementById('loadMoreBtn'); // NEW DOM ELEMENT
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+        // NEW DOM elements for toggling history
+        const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
+        const historyContent = document.getElementById('historyContent');
 
 
         // New DOM elements for Add Transaction Modal
@@ -367,6 +425,7 @@
         const confirmAddTransactionBtn = document.getElementById('confirmAddTransactionBtn');
         const cancelAddModalBtn = document.getElementById('cancelAddModalBtn');
         const addError = document.getElementById('addError');
+        const addLoader = document.getElementById('addLoader');
 
 
         // Existing DOM elements for Edit Transaction Modal
@@ -378,6 +437,7 @@
         const saveEditBtn = document.getElementById('saveEditBtn');
         const cancelEditModalBtn = document.getElementById('cancelEditModalBtn');
         const editError = document.getElementById('editError');
+        const editLoader = document.getElementById('editLoader');
 
 
         // Modal elements for confirmations
@@ -387,20 +447,41 @@
         const confirmActionBtn = document.getElementById('confirmActionBtn');
         const cancelActionBtn = document.getElementById('cancelActionBtn');
 
+        // Utility function to toggle modal visibility and apply animation classes
+        function toggleModal(modalElement, show) {
+            if (show) {
+                modalElement.classList.remove('hidden');
+                // Trigger reflow to ensure animation starts from 'from' state
+                void modalElement.offsetWidth;
+                modalElement.classList.add('modal-enter-active');
+                modalElement.classList.remove('modal-enter-from');
+            } else {
+                modalElement.classList.add('modal-leave-active');
+                modalElement.classList.add('modal-leave-to');
+                modalElement.classList.remove('modal-enter-active');
+                modalElement.addEventListener('transitionend', function handler() {
+                    modalElement.classList.add('hidden');
+                    modalElement.classList.remove('modal-leave-active', 'modal-leave-to');
+                    modalElement.removeEventListener('transitionend', handler);
+                }, { once: true });
+            }
+        }
+
         // Function to show custom confirmation modal
         function showModal(title, message, onConfirm, confirmText = "Confirm", cancelText = "Cancel") {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
             confirmActionBtn.textContent = confirmText;
             cancelActionBtn.textContent = cancelText;
-            confirmationModal.classList.remove('hidden');
+            
+            toggleModal(confirmationModal, true);
 
             let currentConfirmHandler = null;
             let currentCancelHandler = null;
 
             currentConfirmHandler = () => {
                 onConfirm();
-                confirmationModal.classList.add('hidden');
+                toggleModal(confirmationModal, false);
                 confirmActionBtn.removeEventListener('click', currentConfirmHandler);
                 cancelActionBtn.removeEventListener('click', currentCancelHandler);
                 confirmActionBtn.textContent = "Confirm"; // Reset button texts
@@ -408,7 +489,7 @@
             };
 
             currentCancelHandler = () => {
-                confirmationModal.classList.add('hidden');
+                toggleModal(confirmationModal, false);
                 confirmActionBtn.removeEventListener('click', currentConfirmHandler);
                 cancelActionBtn.removeEventListener('click', currentCancelHandler);
                 confirmActionBtn.textContent = "Confirm"; // Reset button texts
@@ -416,8 +497,11 @@
             };
 
             // Remove existing listeners before adding new ones to prevent multiple calls
-            confirmActionBtn.removeEventListener('click', window._tempConfirmHandler);
-            cancelActionBtn.removeEventListener('click', window._tempCancelHandler);
+            // Using a unique property on window to store handlers safely
+            if (window._tempConfirmHandler) {
+                confirmActionBtn.removeEventListener('click', window._tempConfirmHandler);
+                cancelActionBtn.removeEventListener('click', window._tempCancelHandler);
+            }
 
             confirmActionBtn.addEventListener('click', currentConfirmHandler);
             cancelActionBtn.addEventListener('click', currentCancelHandler);
@@ -434,12 +518,17 @@
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
             authError.textContent = ''; // Clear previous errors
+            signInBtn.disabled = true; // Disable button
+            signInLoader.classList.remove('hidden'); // Show loader
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 console.error("Sign In Error:", error);
                 authError.textContent = error.message;
+            } finally {
+                signInBtn.disabled = false; // Re-enable button
+                signInLoader.classList.add('hidden'); // Hide loader
             }
         });
 
@@ -449,12 +538,17 @@
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
             authError.textContent = ''; // Clear previous errors
+            signUpBtn.disabled = true; // Disable button
+            signUpLoader.classList.remove('hidden'); // Show loader
 
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 console.error("Sign Up Error:", error);
                 authError.textContent = error.message;
+            } finally {
+                signUpBtn.disabled = false; // Re-enable button
+                signUpLoader.classList.add('hidden'); // Hide loader
             }
         });
 
@@ -485,7 +579,7 @@
                     currentUserEmail = user.email || 'N/A'; // Use email or fallback
                     currentUserIdSpan.textContent = currentUserEmail;
                     userIdDisplay.classList.remove('hidden');
-                    authModal.classList.add('hidden'); // Hide auth modal
+                    toggleModal(authModal, false); // Hide auth modal with animation
                     appContent.classList.remove('hidden'); // Show app content
                     console.log("Logged in as:", currentUserEmail, "(UID:", currentUserId, ")");
                     transactionsDisplayLimit = 5; // Reset limit on login
@@ -502,7 +596,7 @@
                     currentUserId = null;
                     currentUserEmail = null;
                     userIdDisplay.classList.add('hidden');
-                    authModal.classList.remove('hidden'); // Show auth modal
+                    toggleModal(authModal, true); // Show auth modal with animation
                     appContent.classList.add('hidden'); // Hide app content
                     allTransactions = []; // Clear transactions when logged out
                     displayTransactions([]); // Clear displayed transactions
@@ -590,33 +684,40 @@
             transactionListDiv.innerHTML = ''; // Clear existing list
 
             if (transactionsToDisplay.length === 0) {
-                transactionListDiv.innerHTML = '<p class="text-center text-gray-500 text-lg">No transactions to display.</p>';
+                transactionListDiv.innerHTML = '<p class="text-center text-gray-500 text-lg py-4">No transactions to display.</p>';
                 return;
             }
 
             transactionsToDisplay.forEach(transaction => {
                 const listItem = document.createElement('div');
-                // Ensure the main container is a flexbox and items are aligned
-                listItem.classList.add('flex', 'justify-between', 'items-center', 'p-4', 'rounded-lg', 'shadow-sm', 'border', 'border-gray-200', 'flex-wrap', 'sm:flex-nowrap'); // Added flex-wrap for smaller screens
+                // Added hover effect, increased shadow, and border for a card-like look
+                const borderColorClass = transaction.type === 'income' ? 'border-green-400' : 'border-red-400'; // Dynamic border color
+                listItem.classList.add(
+                    'flex', 'justify-between', 'items-center', 'p-4', 'rounded-lg', 'bg-white',
+                    'shadow-lg', 'border-l-4', borderColorClass, // Stronger shadow and colored left border
+                    'flex-wrap', 'sm:flex-nowrap',
+                    'hover:shadow-xl', 'transition', 'duration-200', 'ease-in-out', 'transform', 'hover:-translate-y-1',
+                    'mb-3' // Added margin-bottom for spacing between cards
+                );
 
                 const amountClass = transaction.type === 'expense' ? 'text-red-600' : 'text-green-600';
                 const sign = transaction.type === 'expense' ? '-' : '+';
 
                 listItem.innerHTML = `
-                    <div class="flex flex-col flex-grow min-w-0 mr-4">
-                        <span class="text-gray-800 font-semibold text-lg truncate">${transaction.description}</span>
+                    <div class="flex flex-col flex-grow min-w-0 mr-4 py-1">
+                        <span class="text-gray-800 font-bold text-lg truncate">${transaction.description}</span>
                         <span class="text-gray-500 text-sm">${transaction.date}</span>
                     </div>
-                    <span class="${amountClass} font-bold text-xl mr-4 text-right flex-shrink-0">
+                    <span class="${amountClass} font-extrabold text-xl sm:text-2xl mr-4 text-right flex-shrink-0 py-1">
                         ${sign} ₹${transaction.amount.toFixed(2)}
                     </span>
-                    <div class="flex space-x-2 flex-shrink-0 ml-auto">
-                        <button class="edit-btn bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-md shadow-sm transition duration-200" data-id="${transaction.id}">
+                    <div class="flex space-x-2 flex-shrink-0 ml-auto py-1">
+                        <button class="edit-btn bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-md shadow-sm transition duration-200 hover:scale-105" data-id="${transaction.id}" title="Edit Transaction">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
                         </button>
-                        <button class="delete-btn bg-red-500 hover:bg-red-600 text-white p-2 rounded-md shadow-sm transition duration-200" data-id="${transaction.id}">
+                        <button class="delete-btn bg-red-500 hover:bg-red-600 text-white p-2 rounded-md shadow-sm transition duration-200 hover:scale-105" data-id="${transaction.id}" title="Delete Transaction">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -677,12 +778,13 @@
             monthlyBalanceSpan.textContent = `₹${netBalance.toFixed(2)}`;
 
             // Change color of net balance based on value
+            // More contrasting colors on the darker gradient background
             if (netBalance >= 0) {
-                monthlyBalanceSpan.classList.remove('text-red-700');
-                monthlyBalanceSpan.classList.add('text-white'); // Changed to white for better contrast on gradient background
+                monthlyBalanceSpan.classList.remove('text-red-300', 'text-red-400');
+                monthlyBalanceSpan.classList.add('text-green-200');
             } else {
-                monthlyBalanceSpan.classList.remove('text-white');
-                monthlyBalanceSpan.classList.add('text-red-300'); // Lighter red for negative balance
+                monthlyBalanceSpan.classList.remove('text-green-200');
+                monthlyBalanceSpan.classList.add('text-red-400');
             }
         }
 
@@ -697,7 +799,9 @@
             addDescriptionInput.value = '';
             addAmountInput.value = '';
             addError.textContent = ''; // Clear previous errors
-            addTransactionModal.classList.remove('hidden');
+            toggleModal(addTransactionModal, true);
+            addLoader.classList.add('hidden'); // Hide loader
+            confirmAddTransactionBtn.disabled = false; // Enable button
         }
 
         // Event listener for "Add Expense" button
@@ -730,6 +834,9 @@
                 return;
             }
 
+            addLoader.classList.remove('hidden'); // Show loader
+            confirmAddTransactionBtn.disabled = true; // Disable button
+
             try {
                 await addDoc(collection(db, `users/${currentUserId}/transactions`), {
                     description: description,
@@ -744,6 +851,9 @@
             } catch (error) {
                 console.error("Error adding document: ", error);
                 addError.textContent = "Failed to add transaction. Please try again.";
+            } finally {
+                addLoader.classList.add('hidden'); // Hide loader
+                confirmAddTransactionBtn.disabled = false; // Re-enable button
             }
         });
 
@@ -759,7 +869,7 @@
             addDateInput.value = '';
             addError.textContent = '';
             currentAddTransactionType = null;
-            addTransactionModal.classList.add('hidden');
+            toggleModal(addTransactionModal, false);
         }
 
 
@@ -773,7 +883,9 @@
             editDateInput.value = transaction.date;
             editError.textContent = ''; // Clear previous errors
 
-            editTransactionModal.classList.remove('hidden'); // Show the edit modal
+            toggleModal(editTransactionModal, true);
+            editLoader.classList.add('hidden'); // Hide loader
+            saveEditBtn.disabled = false; // Enable button
         }
 
         // Function to handle deleting a transaction
@@ -802,7 +914,7 @@
             editAmountInput.value = '';
             editDateInput.value = '';
             editError.textContent = '';
-            editTransactionModal.classList.add('hidden'); // Hide the edit modal
+            toggleModal(editTransactionModal, false);
         }
 
         // Event listener for Save Changes button in edit modal
@@ -824,6 +936,9 @@
                 return;
             }
 
+            editLoader.classList.remove('hidden'); // Show loader
+            saveEditBtn.disabled = true; // Disable button
+
             try {
                 const docRef = doc(db, `users/${currentUserId}/transactions`, transactionBeingEditedId);
                 await updateDoc(docRef, {
@@ -837,12 +952,15 @@
             } catch (error) {
                 console.error("Error updating document: ", error);
                 editError.textContent = "Failed to update transaction. Please try again.";
+            } finally {
+                editLoader.classList.add('hidden'); // Hide loader
+                saveEditBtn.disabled = false; // Re-enable button
             }
         });
 
         // Event listener for Cancel button in edit modal
         cancelEditModalBtn.addEventListener('click', () => {
-            resetEditModal(); // Close modal and reset fields
+            resetEditModal();
         });
 
         // Event listener for Apply Filter button
@@ -862,6 +980,19 @@
             applyCurrentFilterAndDisplay(); // Re-apply filter and re-render
         });
 
+        // NEW: Event listener for Toggle History button
+        toggleHistoryBtn.addEventListener('click', () => {
+            console.log("Toggle history button clicked!"); // Debug log
+            historyContent.classList.toggle('is-active'); // Toggle the new class
+            if (historyContent.classList.contains('is-active')) {
+                toggleHistoryBtn.textContent = 'Hide History';
+            } else {
+                toggleHistoryBtn.textContent = 'Show History';
+            }
+            console.log("History content classes:", historyContent.classList); // Debug log
+        });
+
+
         // Function to export data to CSV
         exportToExcelBtn.addEventListener('click', () => {
             if (allTransactions.length === 0) {
@@ -871,13 +1002,13 @@
 
             // Define CSV header
             const header = ['Type', 'Description', 'Amount', 'Date', 'UserID'];
-            let csvContent = header.join(',') + '\n';
+            let csvContent = header.map(h => `"${h}"`).join(',') + '\n'; // Quote headers too
 
             // Add rows
             allTransactions.forEach(transaction => {
                 const row = [
                     transaction.type,
-                    `"${transaction.description.replace(/"/g, '""')}"`,
+                    `"${transaction.description.replace(/"/g, '""')}"`, // Handle quotes in description
                     transaction.amount.toFixed(2),
                     transaction.date,
                     transaction.userId
