@@ -227,8 +227,8 @@
             </div>
         </div>
 
-        <div class="bg-indigo-50 p-6 rounded-xl shadow-lg mb-8 border border-indigo-200 transition-colors duration-300">
-            <h2 class="text-2xl font-bold text-indigo-800 mb-4 text-center">Add New Transaction</h2>
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200 transition-colors duration-300">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Add New Transaction</h2>
             <div id="addTransactionButtons" class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <button
                     id="addExpenseBtn"
@@ -253,12 +253,21 @@
             </div>
         </div>
 
-        <div class="bg-green-50 p-6 rounded-xl shadow-lg mb-8 border border-green-200 transition-colors duration-300">
-            <h2 class="text-2xl font-bold text-green-800 mb-4 text-center">Monthly Budgeting</h2>
-            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end mb-4">
+        <!-- Make the budget form hideable under "Set Budget" and hidden by default -->
+        <!-- filepath: /Users/abhisheksujatha/trackergemini/index.html -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8 border border-gray-200 transition-colors duration-300">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Monthly Budgeting</h2>
+            <div class="flex justify-end mb-2">
+                <button id="toggleBudgetFormBtn"
+                    class="bg-green-200 hover:bg-green-300 text-green-900 font-semibold py-1 px-4 rounded-lg shadow-sm transition duration-200"
+                    aria-expanded="false" aria-controls="budgetFormSection">
+                    Set Budget
+                </button>
+            </div>
+            <div id="budgetFormSection" class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end mb-4 hidden">
                 <div class="flex-1 w-full">
                     <label for="budgetCategory" class="block text-gray-700 text-sm font-medium mb-1">Category</label>
-                    <select id="budgetCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-400 focus:border-transparent outline-none transition duration-200">
+                    <select id="budgetCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200">
                         <option value="">Select Category</option>
                         <option value="Food">Food</option>
                         <option value="Transport">Transport</option>
@@ -274,19 +283,18 @@
                 </div>
                 <div class="flex-1 w-full">
                     <label for="budgetAmountInput" class="block text-gray-700 text-sm font-medium mb-1">Budget Amount (₹)</label>
-                    <input type="number" id="budgetAmountInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-400 focus:border-transparent outline-none transition duration-200" placeholder="e.g., 2000" step="0.01">
+                    <input type="number" id="budgetAmountInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200" placeholder="e.g., 2000" step="0.01">
                 </div>
                 <button id="setBudgetBtn" class="w-full sm:w-auto px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" aria-label="Set budget for selected category">
                     Set Budget
                 </button>
             </div>
             <p id="budgetStatus" class="text-gray-700 text-center mt-2"></p>
-            <div id="budgetDisplay" class="mt-4 space-y-2">
-                </div>
+            <div id="budgetDisplay" class="mt-4 space-y-2"></div>
         </div>
 
 
-        <div class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200 transition-colors duration-300">
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 transition-colors duration-300">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Transaction History</h2>
                 <button id="toggleHistoryBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200" aria-expanded="false" aria-controls="historyContent">
@@ -305,15 +313,15 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="startDate" class="block text-gray-700 text-sm font-medium mb-1">Start Date</label>
-                            <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
+                            <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200">
                         </div>
                         <div>
                             <label for="endDate" class="block text-gray-700 text-sm font-medium mb-1">End Date</label>
-                            <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
+                            <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200">
                         </div>
                         <div>
                             <label for="filterCategory" class="block text-gray-700 text-sm font-medium mb-1">Category</label>
-                            <select id="filterCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
+                            <select id="filterCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200">
                                 <option value="">All Categories</option>
                                 <option value="Food">Food</option>
                                 <option value="Transport">Transport</option>
@@ -329,7 +337,7 @@
                         </div>
                         <div>
                             <label for="filterType" class="block text-gray-700 text-sm font-medium mb-1">Type</label>
-                            <select id="filterType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
+                            <select id="filterType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200">
                                 <option value="">All Types</option>
                                 <option value="income">Income</option>
                                 <option value="expense">Expense</option>
@@ -362,7 +370,7 @@
     </div>
 
     <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden modal-enter-from" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalMessage">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-gray-300 modal-content">
+        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-blue-300 modal-content">
             <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4"></h3>
             <p id="modalMessage" class="text-gray-600 text-lg mb-6"></p>
             <div class="flex justify-center space-x-4">
@@ -423,15 +431,6 @@
                         <option value="Education">Education</option>
                         <option value="Other">Other</option>
                     </select>
-                </div>
-                 <div>
-                    <label for="addTags" class="block text-gray-700 text-lg font-medium mb-2">Tags (comma-separated)</label>
-                    <input
-                        type="text"
-                        id="addTags"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
-                        placeholder="e.g., #urgent, #monthly"
-                    />
                 </div>
                 <div>
                     <label for="addDate" class="block text-gray-700 text-lg font-medium mb-2">Date</label>
@@ -511,15 +510,6 @@
                         <option value="Education">Education</option>
                         <option value="Other">Other</option>
                     </select>
-                </div>
-                <div>
-                    <label for="editTags" class="block text-gray-700 text-lg font-medium mb-2">Tags (comma-separated)</label>
-                    <input
-                        type="text"
-                        id="editTags"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
-                        placeholder="e.g., #urgent, #monthly"
-                    />
                 </div>
                 <div>
                     <label for="editDate" class="block text-gray-700 text-lg font-medium mb-2">Date</label>
@@ -698,7 +688,6 @@
         const addAmountInput = document.getElementById('addAmount');
         const addDateInput = document.getElementById('addDate');
         const addCategorySelect = document.getElementById('addCategory'); // NEW
-        const addTagsInput = document.getElementById('addTags'); // NEW
         const confirmAddTransactionBtn = document.getElementById('confirmAddTransactionBtn');
         const cancelAddModalBtn = document.getElementById('cancelAddModalBtn');
         const addError = document.getElementById('addError');
@@ -711,7 +700,6 @@
         const editAmountInput = document.getElementById('editAmount');
         const editDateInput = document.getElementById('editDate');
         const editCategorySelect = document.getElementById('editCategory'); // NEW
-        const editTagsInput = document.getElementById('editTags'); // NEW
         const saveEditBtn = document.getElementById('saveEditBtn');
         const cancelEditModalBtn = document.getElementById('cancelEditModalBtn');
         const editError = document.getElementById('editError');
@@ -1015,7 +1003,6 @@
                 const amountClass = transaction.type === 'expense' ? 'text-red-600' : 'text-green-600';
                 const sign = transaction.type === 'expense' ? '-' : '+';
                 const categoryDisplay = transaction.category ? `<span class="text-gray-500 text-xs mt-1 px-2 py-0.5 bg-gray-100 rounded-full">${transaction.category}</span>` : '';
-                const tagsDisplay = transaction.tags ? `<span class="text-gray-500 text-xs mt-1 ml-2 px-2 py-0.5 bg-blue-100 rounded-full">${transaction.tags.split(',').map(tag => `#${tag.trim()}`).join(' ')}</span>` : '';
 
 
                 listItem.innerHTML = `
@@ -1024,7 +1011,6 @@
                         <div class="flex items-center space-x-2 mt-1">
                             <span class="text-gray-500 text-sm">${transaction.date}</span>
                             ${categoryDisplay}
-                            ${tagsDisplay}
                         </div>
                     </div>
                     <span class="${amountClass} font-extrabold text-xl sm:text-2xl mr-4 text-right flex-shrink-0 py-1">
@@ -1112,7 +1098,6 @@
             addDescriptionInput.value = '';
             addAmountInput.value = '';
             addCategorySelect.value = ''; // Reset category
-            addTagsInput.value = ''; // Reset tags
             addError.textContent = '';
             toggleModal(addTransactionModal, true);
             addLoader.classList.add('hidden');
@@ -1140,7 +1125,6 @@
             const amount = parseFloat(addAmountInput.value);
             const date = addDateInput.value;
             const category = addCategorySelect.value; // Get category
-            const tags = addTagsInput.value.trim(); // Get tags
             const type = currentAddTransactionType;
 
             if (!description || isNaN(amount) || amount <= 0 || !date || !category) {
@@ -1158,7 +1142,6 @@
                     date: date,
                     type: type,
                     category: category, // Save category
-                    tags: tags, // Save tags
                     userId: currentUserId,
                     timestamp: serverTimestamp()
                 });
@@ -1182,7 +1165,6 @@
             addAmountInput.value = '';
             addDateInput.value = '';
             addCategorySelect.value = '';
-            addTagsInput.value = '';
             addError.textContent = '';
             currentAddTransactionType = null;
             toggleModal(addTransactionModal, false);
@@ -1195,7 +1177,6 @@
             editAmountInput.value = transaction.amount;
             editDateInput.value = transaction.date;
             editCategorySelect.value = transaction.category || ''; // Set category
-            editTagsInput.value = transaction.tags || ''; // Set tags
             editError.textContent = '';
 
             toggleModal(editTransactionModal, true);
@@ -1225,7 +1206,6 @@
             editAmountInput.value = '';
             editDateInput.value = '';
             editCategorySelect.value = '';
-            editTagsInput.value = '';
             editError.textContent = '';
             toggleModal(editTransactionModal, false);
         }
@@ -1243,7 +1223,6 @@
             const amount = parseFloat(editAmountInput.value);
             const date = editDateInput.value;
             const category = editCategorySelect.value; // Get category
-            const tags = editTagsInput.value.trim(); // Get tags
 
             if (!description || isNaN(amount) || amount <= 0 || !date || !category) {
                 editError.textContent = "Please fill in all fields (including Category) correctly. Amount must be a positive number.";
@@ -1260,7 +1239,6 @@
                     amount: amount,
                     date: date,
                     category: category, // Update category
-                    tags: tags, // Update tags
                 });
                 console.log("Document successfully updated!");
                 resetEditModal();
@@ -1324,7 +1302,7 @@
                 return;
             }
 
-            const header = ['Type', 'Description', 'Amount', 'Date', 'Category', 'Tags', 'UserID'];
+            const header = ['Type', 'Description', 'Amount', 'Date', 'Category', 'UserID'];
             let csvContent = header.map(h => `"${h}"`).join(',') + '\n';
 
             allTransactions.forEach(transaction => {
@@ -1334,7 +1312,6 @@
                     transaction.amount.toFixed(2),
                     transaction.date,
                     `"${(transaction.category || '').replace(/"/g, '""')}"`, // Include category
-                    `"${(transaction.tags || '').replace(/"/g, '""')}"`, // Include tags
                     transaction.userId
                 ];
                 csvContent += row.join(',') + '\n';
@@ -1376,6 +1353,18 @@
             budgetStatusDiv.classList.add('text-green-600');
             renderBudgets();
             updateBudgetDisplay(); // Update budget display
+        });
+
+        // Toggle budget form visibility on "Set Budget" button click
+        // filepath: /Users/abhisheksujatha/trackergemini/index.html
+        const toggleBudgetFormBtn = document.getElementById('toggleBudgetFormBtn');
+        const budgetFormSection = document.getElementById('budgetFormSection');
+
+        toggleBudgetFormBtn.addEventListener('click', () => {
+            budgetFormSection.classList.toggle('hidden');
+            const isVisible = !budgetFormSection.classList.contains('hidden');
+            toggleBudgetFormBtn.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
+            toggleBudgetFormBtn.textContent = isVisible ? 'Hide Set Budget' : 'Set Budget';
         });
 
         function renderBudgets() {
@@ -1528,7 +1517,7 @@
                 geminiMessages.innerHTML += `
                     <div class="flex justify-start mb-2">
                         <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-xl max-w-[75%] shadow">
-                            <b>Error:</b> Failed to get response from Gemini. Please check your network or API key.
+                            <b>Error:</b> Failed to get response from Gemini. Please check your network or API key.\n
                         </div>
                     </div>
                 `;
