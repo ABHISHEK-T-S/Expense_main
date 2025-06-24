@@ -227,6 +227,32 @@
             </div>
         </div>
 
+        <div class="bg-indigo-50 p-6 rounded-xl shadow-lg mb-8 border border-indigo-200 transition-colors duration-300">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-4 text-center">Add New Transaction</h2>
+            <div id="addTransactionButtons" class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                <button
+                    id="addExpenseBtn"
+                    class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center justify-center space-x-2"
+                    aria-label="Add a new expense"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Add Expense</span>
+                </button>
+                <button
+                    id="addIncomeBtn"
+                    class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center space-x-2"
+                    aria-label="Add a new income"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Add Income</span>
+                </button>
+            </div>
+        </div>
+
         <div class="bg-green-50 p-6 rounded-xl shadow-lg mb-8 border border-green-200 transition-colors duration-300">
             <h2 class="text-2xl font-bold text-green-800 mb-4 text-center">Monthly Budgeting</h2>
             <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end mb-4">
@@ -259,32 +285,6 @@
                 </div>
         </div>
 
-
-        <div class="bg-indigo-50 p-6 rounded-xl shadow-lg mb-8 border border-indigo-200 transition-colors duration-300">
-            <h2 class="text-2xl font-bold text-indigo-800 mb-4 text-center">Add New Transaction</h2>
-            <div id="addTransactionButtons" class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                <button
-                    id="addExpenseBtn"
-                    class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center justify-center space-x-2"
-                    aria-label="Add a new expense"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                    </svg>
-                    <span>Add Expense</span>
-                </button>
-                <button
-                    id="addIncomeBtn"
-                    class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center space-x-2"
-                    aria-label="Add a new income"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
-                    </svg>
-                    <span>Add Income</span>
-                </button>
-            </div>
-        </div>
 
         <div class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200 transition-colors duration-300">
             <div class="flex justify-between items-center mb-6">
