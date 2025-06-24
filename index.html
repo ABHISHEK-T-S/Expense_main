@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en" class="light"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Tracker</title>
@@ -59,48 +58,112 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* NEW: Styles for hideable history section */
+        /* Styles for hideable history section */
         #historyContent {
             max-height: 0;
             opacity: 0;
-            overflow: hidden; /* Ensures content is clipped when collapsed */
+            overflow: hidden;
             transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
         }
 
         #historyContent.is-active {
-            max-height: max-content; /* FIX: This will allow it to expand to content height */
+            max-height: max-content;
             opacity: 1;
         }
 
-        .markdown-body ul, .markdown-body ol { margin-left: 1.5em; }
-        .markdown-body pre { background: #f3f4f6; padding: 0.5em 1em; border-radius: 0.5em; }
-        .markdown-body code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; }
+        .markdown-body ul, .markdown-body ol { margin-left: 1.5em; list-style-type: disc; } /* Added list-style for better readability */
+        .markdown-body pre { background: #f3f4f6; padding: 0.5em 1em; border-radius: 0.5em; overflow-x: auto; } /* Added overflow for pre */
+        .markdown-body code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; font-family: monospace; } /* Added font-family for code */
         .markdown-body a { color: #6366f1; text-decoration: underline; }
+
+        /* Dark mode styles */
+        html.dark body {
+            background-color: #1a202c; /* Dark background */
+            background-image: linear-gradient(to br, #2d3748, #4a5568);
+            color: #e2e8f0; /* Light text */
+        }
+        html.dark #appContent,
+        html.dark #authModal .bg-white,
+        html.dark #confirmationModal .bg-white,
+        html.dark #addTransactionModal .bg-white,
+        html.dark #editTransactionModal .bg-white {
+            background-color: #2d3748; /* Darker card backgrounds */
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        html.dark .text-gray-800 { color: #e2e8f0; }
+        html.dark .text-gray-600 { color: #cbd5e0; }
+        html.dark .text-gray-500 { color: #a0aec0; }
+        html.dark .border-gray-300 { border-color: #4a5568; }
+        html.dark input, html.dark select {
+            background-color: #4a5568;
+            border-color: #6a768c;
+            color: #e2e8f0;
+        }
+        html.dark input::placeholder { color: #a0aec0; }
+        html.dark .bg-gray-50 { background-color: #2d3748; border-color: #4a5568; }
+        html.dark .bg-indigo-50 { background-color: #2d3748; border-color: #4a5568; }
+        html.dark .bg-white { background-color: #2d3748; }
+        html.dark .bg-gray-200 { background-color: #4a5568; color: #e2e8f0; }
+        html.dark .hover\\:bg-gray-300:hover { background-color: #6a768c; }
+        html.dark .text-gray-700 { color: #e2e8f0; }
+        html.dark .transaction-item {
+            background-color: #3b4556;
+            border-color: #5a6475;
+            color: #e2e8f0;
+        }
+        html.dark .bg-indigo-100 { background-color: #4c51bf; } /* Darker shade for user message */
+        html.dark .text-indigo-900 { color: #c3dafe; } /* Lighter text for user message */
+        html.dark .bg-gray-100 { background-color: #3b4556; } /* Darker for Gemini typing */
+        html.dark .bg-white.border.border-indigo-200 { /* Gemini response bubble */
+            background-color: #3b4556;
+            border-color: #6366f1;
+            color: #e2e8f0;
+        }
+        html.dark .bg-gradient-to-br.from-white.via-indigo-50.to-purple-100 {
+            background-image: linear-gradient(to br, #2d3748, #4a5568);
+        }
+        html.dark #geminiForm {
+             background-image: linear-gradient(to r, #2d3748, #4a5568);
+        }
+        html.dark #geminiInput {
+            background-color: #4a5568;
+            border-color: #6a768c;
+            color: #e2e8f0;
+        }
+        html.dark .markdown-body pre, html.dark .markdown-body code {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-start justify-center pb-8">
+<body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-start justify-center pb-8 transition-colors duration-300">
 
     <div id="authModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 modal-enter-from">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-blue-300 modal-content">
             <h2 class="text-4xl font-extrabold text-gray-800 mb-6">Welcome to Finance Tracker</h2>
             <p class="text-gray-600 mb-6">Sign in or create an account to manage your finances.</p>
-            <form id="authForm" class="space-y-5">
+            <form id="authForm" class="space-y-5" aria-label="Authentication form">
                 <div>
+                    <label for="authEmail" class="sr-only">Email</label>
                     <input
                         type="email"
                         id="authEmail"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         placeholder="Email"
                         required
+                        aria-required="true"
                     />
                 </div>
                 <div>
+                    <label for="authPassword" class="sr-only">Password</label>
                     <input
                         type="password"
                         id="authPassword"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         placeholder="Password"
                         required
+                        aria-required="true"
                     />
                 </div>
                 <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
@@ -108,6 +171,7 @@
                         type="submit"
                         id="signInBtn"
                         class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center"
+                        aria-label="Sign in"
                     >
                         Sign In <span id="signInLoader" class="loader hidden"></span>
                     </button>
@@ -115,6 +179,7 @@
                         type="submit"
                         id="signUpBtn"
                         class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center"
+                        aria-label="Sign up"
                     >
                         Sign Up <span id="signUpLoader" class="loader hidden"></span>
                     </button>
@@ -124,7 +189,7 @@
         </div>
     </div>
 
-    <div id="appContent" class="container max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-2xl border border-gray-200 hidden">
+    <div id="appContent" class="container max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-2xl border border-gray-200 hidden transition-colors duration-300">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-extrabold text-gray-800 tracking-tight leading-tight">
                 Finance Tracker
@@ -133,8 +198,14 @@
                 <p class="text-gray-600 text-sm hidden sm:block">
                     Logged in as: <span id="currentUserId" class="font-semibold text-blue-600 break-words"></span>
                 </p>
-                <button id="profileBtn" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                <button id="profileBtn" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200" aria-label="User Profile and Logout">
                     Profile
+                </button>
+                <button id="themeToggleBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200" aria-label="Toggle dark mode">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <span class="ml-1 hidden sm:inline">Theme</span>
                 </button>
             </div>
         </div>
@@ -151,17 +222,51 @@
                     <p id="monthlyExpenses" class="text-3xl font-extrabold mt-1">₹0.00</p>
                 </div>
                 <div class="flex flex-col items-center justify-center p-2">
-                    <p id="monthlyBalance" class="text-3xl font-extrabold mt-1 transition-colors duration-300">₹0.00</p>
+                    <p class="text-sm opacity-90">Balance</p> <p id="monthlyBalance" class="text-3xl font-extrabold mt-1 transition-colors duration-300">₹0.00</p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-indigo-50 p-6 rounded-xl shadow-lg mb-8 border border-indigo-200">
+        <div class="bg-green-50 p-6 rounded-xl shadow-lg mb-8 border border-green-200 transition-colors duration-300">
+            <h2 class="text-2xl font-bold text-green-800 mb-4 text-center">Monthly Budgeting</h2>
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end mb-4">
+                <div class="flex-1 w-full">
+                    <label for="budgetCategory" class="block text-gray-700 text-sm font-medium mb-1">Category</label>
+                    <select id="budgetCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-400 focus:border-transparent outline-none transition duration-200">
+                        <option value="">Select Category</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Health">Health</option>
+                        <option value="Education">Education</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="flex-1 w-full">
+                    <label for="budgetAmountInput" class="block text-gray-700 text-sm font-medium mb-1">Budget Amount (₹)</label>
+                    <input type="number" id="budgetAmountInput" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-400 focus:border-transparent outline-none transition duration-200" placeholder="e.g., 2000" step="0.01">
+                </div>
+                <button id="setBudgetBtn" class="w-full sm:w-auto px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" aria-label="Set budget for selected category">
+                    Set Budget
+                </button>
+            </div>
+            <p id="budgetStatus" class="text-gray-700 text-center mt-2"></p>
+            <div id="budgetDisplay" class="mt-4 space-y-2">
+                </div>
+        </div>
+
+
+        <div class="bg-indigo-50 p-6 rounded-xl shadow-lg mb-8 border border-indigo-200 transition-colors duration-300">
             <h2 class="text-2xl font-bold text-indigo-800 mb-4 text-center">Add New Transaction</h2>
             <div id="addTransactionButtons" class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <button
                     id="addExpenseBtn"
                     class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 flex items-center justify-center space-x-2"
+                    aria-label="Add a new expense"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
@@ -171,6 +276,7 @@
                 <button
                     id="addIncomeBtn"
                     class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center space-x-2"
+                    aria-label="Add a new income"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
@@ -180,36 +286,62 @@
             </div>
         </div>
 
-        <div class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200">
+        <div class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200 transition-colors duration-300">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Transaction History</h2>
-                <button id="toggleHistoryBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200">
+                <button id="toggleHistoryBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200" aria-expanded="false" aria-controls="historyContent">
                     Show History
                 </button>
             </div>
 
             <div id="historyContent">
                 <div class="flex justify-end mb-2">
-                    <button id="toggleFilterBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1 px-4 rounded-lg shadow-sm transition duration-200">
+                    <button id="toggleFilterBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-1 px-4 rounded-lg shadow-sm transition duration-200" aria-expanded="false" aria-controls="filterSection">
                         Show Filters
                     </button>
                 </div>
-                <div id="filterSection" class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-300 hidden">
+                <div id="filterSection" class="mb-6 bg-white p-4 rounded-lg shadow-sm border border-gray-300 hidden transition-colors duration-300">
                     <h3 class="text-xl font-semibold text-gray-700 mb-3">Filter Transactions</h3>
-                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end">
-                        <div class="flex-1 w-full">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
                             <label for="startDate" class="block text-gray-700 text-sm font-medium mb-1">Start Date</label>
                             <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
                         </div>
-                        <div class="flex-1 w-full">
+                        <div>
                             <label for="endDate" class="block text-gray-700 text-sm font-medium mb-1">End Date</label>
                             <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
                         </div>
-                        <button id="applyFilterBtn" class="w-full sm:w-auto px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <div>
+                            <label for="filterCategory" class="block text-gray-700 text-sm font-medium mb-1">Category</label>
+                            <select id="filterCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
+                                <option value="">All Categories</option>
+                                <option value="Food">Food</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Rent">Rent</option>
+                                <option value="Salary">Salary</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Health">Health</option>
+                                <option value="Education">Education</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filterType" class="block text-gray-700 text-sm font-medium mb-1">Type</label>
+                            <select id="filterType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200">
+                                <option value="">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 items-end mt-4">
+                        <button id="applyFilterBtn" class="flex-1 px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" aria-label="Apply filters to transactions">
                             Apply Filter
                         </button>
-                        <button id="clearFilterBtn" class="w-full sm:w-auto px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
-                            Clear
+                        <button id="clearFilterBtn" class="flex-1 px-5 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg shadow-md transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2" aria-label="Clear all transaction filters">
+                            Clear Filters
                         </button>
                     </div>
                 </div>
@@ -218,18 +350,18 @@
                     <p class="text-center text-gray-500 text-lg py-4">No transactions to display.</p>
                 </div>
 
-                <button id="loadMoreBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg shadow-md mb-6 hidden transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                <button id="loadMoreBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-lg shadow-md mb-6 hidden transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2" aria-label="Load more transactions">
                     Load More Transactions
                 </button>
 
-                <button id="exportToExcelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <button id="exportToExcelBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" aria-label="Export transaction data to CSV">
                     Export to Excel (CSV)
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden modal-enter-from">
+    <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 hidden modal-enter-from" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalMessage">
         <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full text-center border border-gray-300 modal-content">
             <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4"></h3>
             <p id="modalMessage" class="text-gray-600 text-lg mb-6"></p>
@@ -244,10 +376,10 @@
         </div>
     </div>
 
-    <div id="addTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden modal-enter-from">
+    <div id="addTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden modal-enter-from" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300 modal-content">
             <h3 id="addModalTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center">Add New Transaction</h3>
-            <form id="addTransactionForm" class="space-y-5">
+            <form id="addTransactionForm" class="space-y-5" aria-label="Add new transaction form">
                 <div>
                     <label for="addAmount" class="block text-gray-700 text-lg font-medium mb-2">Amount</label>
                     <input
@@ -257,6 +389,7 @@
                         placeholder="e.g., 50.00"
                         step="0.01"
                         required
+                        aria-required="true"
                     />
                 </div>
                 <div>
@@ -267,6 +400,37 @@
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         placeholder="e.g., Groceries, Salary, Rent"
                         required
+                        aria-required="true"
+                    />
+                </div>
+                <div>
+                    <label for="addCategory" class="block text-gray-700 text-lg font-medium mb-2">Category</label>
+                    <select
+                        id="addCategory"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        required
+                        aria-required="true"
+                    >
+                        <option value="">Select Category</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Health">Health</option>
+                        <option value="Education">Education</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                 <div>
+                    <label for="addTags" class="block text-gray-700 text-lg font-medium mb-2">Tags (comma-separated)</label>
+                    <input
+                        type="text"
+                        id="addTags"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="e.g., #urgent, #monthly"
                     />
                 </div>
                 <div>
@@ -276,7 +440,7 @@
                         id="addDate"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         required
-                        placeholder=""
+                        aria-required="true"
                     />
                 </div>
                 <p id="addError" class="text-red-600 mt-4 text-sm text-center font-semibold"></p>
@@ -285,6 +449,7 @@
                         type="submit"
                         id="confirmAddTransactionBtn"
                         class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center"
+                        aria-label="Confirm adding transaction"
                     >
                         Confirm Add <span id="addLoader" class="loader hidden"></span>
                     </button>
@@ -292,6 +457,7 @@
                         type="button"
                         id="cancelAddModalBtn"
                         class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                        aria-label="Cancel adding transaction"
                     >
                         Cancel
                     </button>
@@ -300,10 +466,10 @@
         </div>
     </div>
 
-    <div id="editTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden modal-enter-from">
+    <div id="editTransactionModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden modal-enter-from" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
         <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full border border-blue-300 modal-content">
-            <h3 class="text-3xl font-bold text-gray-800 mb-6 text-center">Edit Transaction</h3>
-            <form id="editTransactionForm" class="space-y-5">
+            <h3 class="text-3xl font-bold text-gray-800 mb-6 text-center" id="editModalTitle">Edit Transaction</h3>
+            <form id="editTransactionForm" class="space-y-5" aria-label="Edit transaction form">
                 <div>
                     <label for="editDescription" class="block text-gray-700 text-lg font-medium mb-2">Description</label>
                     <input
@@ -311,6 +477,7 @@
                         id="editDescription"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         required
+                        aria-required="true"
                     />
                 </div>
                 <div>
@@ -321,6 +488,37 @@
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         step="0.01"
                         required
+                        aria-required="true"
+                    />
+                </div>
+                <div>
+                    <label for="editCategory" class="block text-gray-700 text-lg font-medium mb-2">Category</label>
+                    <select
+                        id="editCategory"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        required
+                        aria-required="true"
+                    >
+                        <option value="">Select Category</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Health">Health</option>
+                        <option value="Education">Education</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="editTags" class="block text-gray-700 text-lg font-medium mb-2">Tags (comma-separated)</label>
+                    <input
+                        type="text"
+                        id="editTags"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="e.g., #urgent, #monthly"
                     />
                 </div>
                 <div>
@@ -330,7 +528,7 @@
                         id="editDate"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         required
-                        placeholder=""
+                        aria-required="true"
                     />
                 </div>
                 <p id="editError" class="text-red-600 mt-4 text-sm text-center font-semibold"></p>
@@ -339,6 +537,7 @@
                         type="submit"
                         id="saveEditBtn"
                         class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center"
+                        aria-label="Save changes to transaction"
                     >
                         Save Changes <span id="editLoader" class="loader hidden"></span>
                     </button>
@@ -346,6 +545,7 @@
                         type="button"
                         id="cancelEditModalBtn"
                         class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                        aria-label="Cancel editing transaction"
                     >
                         Cancel
                     </button>
@@ -354,24 +554,21 @@
         </div>
     </div>
 
-    <!-- Gemini AI Assistant Button (unchanged) -->
     <button id="geminiOpenBtn"
         class="fixed bottom-6 right-6 bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl p-4 z-50 flex items-center justify-center border-4 border-white transition-transform duration-200 hover:scale-110"
-        style="display: block;">
-        <!-- Chat icon SVG with animation -->
+        style="display: block;" aria-label="Open Gemini AI Assistant Chat">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 21l1.8-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
         </svg>
     </button>
 
-    <!-- Gemini Chat Popup (responsive) -->
     <div id="geminiChat"
          class="fixed bottom-4 right-4 bg-gradient-to-br from-white via-indigo-50 to-purple-100 rounded-2xl shadow-2xl p-0 w-96 max-w-full border-2 border-indigo-300 z-50 transition-all duration-300
                 sm:w-96 sm:bottom-4 sm:right-4
                 w-[95vw] left-1/2 -translate-x-1/2 bottom-2 right-auto
                 md:w-96 md:left-auto md:translate-x-0"
-         style="display: none;">
+         style="display: none;" role="dialog" aria-modal="true" aria-labelledby="geminiChatTitle">
         <div class="flex justify-between items-center px-4 sm:px-6 pt-4 pb-2 rounded-t-2xl bg-gradient-to-r from-indigo-500 to-purple-500">
             <div class="flex items-center space-x-2">
                 <span class="inline-block bg-white rounded-full p-1 shadow">
@@ -381,19 +578,23 @@
                               d="M8 10h.01M12 10h.01M16 10h.01"/>
                     </svg>
                 </span>
-                <h3 class="font-extrabold text-white text-lg tracking-wide drop-shadow">Gemini AI Assistant</h3>
+                <h3 id="geminiChatTitle" class="font-extrabold text-white text-lg tracking-wide drop-shadow">Gemini AI Assistant</h3>
             </div>
-            <button id="geminiCloseBtn" class="text-white hover:text-red-300 text-2xl font-bold ml-2 transition-colors duration-200" title="Close">&times;</button>
+            <button id="geminiCloseBtn" class="text-white hover:text-red-300 text-2xl font-bold ml-2 transition-colors duration-200" title="Close" aria-label="Close Gemini chat">
+                &times;
+            </button>
         </div>
-        <div id="geminiMessages" class="h-56 sm:h-56 h-48 overflow-y-auto px-3 sm:px-6 py-3 text-sm space-y-2 bg-white rounded-b-2xl">
+        <div id="geminiMessages" class="h-56 sm:h-56 h-48 overflow-y-auto px-3 sm:px-6 py-3 text-sm space-y-2 bg-white rounded-b-2xl transition-colors duration-300" role="log" aria-live="polite">
             <div class="text-center text-indigo-400 italic">Ask me anything about your finances or budgeting!</div>
         </div>
-        <form id="geminiForm" class="flex items-center px-2 sm:px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-100 rounded-b-2xl border-t border-indigo-100 space-x-2">
+        <form id="geminiForm" class="flex items-center px-2 sm:px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-100 rounded-b-2xl border-t border-indigo-100 space-x-2 transition-colors duration-300" aria-label="Chat with Gemini AI">
+            <label for="geminiInput" class="sr-only">Your message to Gemini</label>
             <input id="geminiInput" type="text"
                    class="flex-1 border border-indigo-200 rounded-lg px-2 sm:px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200 bg-white text-base"
-                   placeholder="Ask Gemini..." required>
+                   placeholder="Ask Gemini..." required aria-required="true">
             <button type="submit"
-                    class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-3 sm:px-4 py-2 rounded-lg shadow-md font-semibold transition-transform duration-200 hover:scale-105">
+                    class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-3 sm:px-4 py-2 rounded-lg shadow-md font-semibold transition-transform duration-200 hover:scale-105"
+                    aria-label="Send message to Gemini">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -424,12 +625,10 @@
     </style>
 
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, updateDoc, deleteDoc, doc, where } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js"; // Added 'where'
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCl6ubGzBbeiJv1vYSuGCFmeqvQRyQeDRM", // Replace with your Firebase API Key
             authDomain: "expensetracker-e711b.firebaseapp.com",
@@ -439,23 +638,24 @@
             appId: "1:742011057310:web:86e4f6ef2f48977dfdf78f"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-
-        // Global variables for Firebase instances
         let db = getFirestore(app);
         let auth = getAuth(app);
         let currentUserId = null;
         let currentUserEmail = null;
         let allTransactions = [];
-        let transactionBeingEditedId = null; // To store the ID of the transaction being edited
-        let currentAddTransactionType = null; // To store 'income' or 'expense' when adding
-
-        let transactionsDisplayLimit = 5; // NEW GLOBAL VARIABLE
-
-        // Global variable to store the unsubscribe function for Firestore listener
+        let transactionBeingEditedId = null;
+        let currentAddTransactionType = null;
+        let transactionsDisplayLimit = 5;
         let unsubscribeFromTransactions = null;
 
+        // NEW: Budgeting variables
+        let monthlyBudgets = JSON.parse(localStorage.getItem('monthlyBudgets')) || {}; // Load from localStorage
+        const budgetCategorySelect = document.getElementById('budgetCategory');
+        const budgetAmountInput = document.getElementById('budgetAmountInput');
+        const setBudgetBtn = document.getElementById('setBudgetBtn');
+        const budgetStatusDiv = document.getElementById('budgetStatus');
+        const budgetDisplayDiv = document.getElementById('budgetDisplay');
 
         // Get DOM elements for Auth
         const authModal = document.getElementById('authModal');
@@ -467,16 +667,12 @@
         const authError = document.getElementById('authError');
         const appContent = document.getElementById('appContent');
         const profileBtn = document.getElementById('profileBtn');
-
-        // NEW: Loaders for auth buttons
         const signInLoader = document.getElementById('signInLoader');
         const signUpLoader = document.getElementById('signUpLoader');
 
-
-        // Get DOM elements for Finance Tracker (some changed/removed)
+        // Get DOM elements for Finance Tracker
         const addExpenseBtn = document.getElementById('addExpenseBtn');
         const addIncomeBtn = document.getElementById('addIncomeBtn');
-
         const transactionListDiv = document.getElementById('transactionList');
         const monthlyIncomeSpan = document.getElementById('monthlyIncome');
         const monthlyExpensesSpan = document.getElementById('monthlyExpenses');
@@ -489,11 +685,10 @@
         const userIdDisplay = document.getElementById('userIdDisplay');
         const currentUserIdSpan = document.getElementById('currentUserId');
         const loadMoreBtn = document.getElementById('loadMoreBtn');
-
-        // NEW DOM elements for toggling history
         const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
         const historyContent = document.getElementById('historyContent');
-
+        const toggleFilterBtn = document.getElementById('toggleFilterBtn');
+        const filterSection = document.getElementById('filterSection');
 
         // New DOM elements for Add Transaction Modal
         const addTransactionModal = document.getElementById('addTransactionModal');
@@ -502,11 +697,12 @@
         const addDescriptionInput = document.getElementById('addDescription');
         const addAmountInput = document.getElementById('addAmount');
         const addDateInput = document.getElementById('addDate');
+        const addCategorySelect = document.getElementById('addCategory'); // NEW
+        const addTagsInput = document.getElementById('addTags'); // NEW
         const confirmAddTransactionBtn = document.getElementById('confirmAddTransactionBtn');
         const cancelAddModalBtn = document.getElementById('cancelAddModalBtn');
         const addError = document.getElementById('addError');
         const addLoader = document.getElementById('addLoader');
-
 
         // Existing DOM elements for Edit Transaction Modal
         const editTransactionModal = document.getElementById('editTransactionModal');
@@ -514,11 +710,12 @@
         const editDescriptionInput = document.getElementById('editDescription');
         const editAmountInput = document.getElementById('editAmount');
         const editDateInput = document.getElementById('editDate');
+        const editCategorySelect = document.getElementById('editCategory'); // NEW
+        const editTagsInput = document.getElementById('editTags'); // NEW
         const saveEditBtn = document.getElementById('saveEditBtn');
         const cancelEditModalBtn = document.getElementById('cancelEditModalBtn');
         const editError = document.getElementById('editError');
         const editLoader = document.getElementById('editLoader');
-
 
         // Modal elements for confirmations
         const confirmationModal = document.getElementById('confirmationModal');
@@ -527,19 +724,47 @@
         const confirmActionBtn = document.getElementById('confirmActionBtn');
         const cancelActionBtn = document.getElementById('cancelActionBtn');
 
-        // Utility function to toggle modal visibility and apply animation classes
+        // NEW: Filter specific elements
+        const filterCategorySelect = document.getElementById('filterCategory');
+        const filterTypeSelect = document.getElementById('filterType');
+
+        // NEW: Theme Toggle Button
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        let isDarkMode = false; // Default to light mode
+
+        // Initialize theme based on local storage or system preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (savedTheme === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            isDarkMode = true;
+        } else {
+            document.documentElement.classList.remove('dark');
+            isDarkMode = false;
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+
         function toggleModal(modalElement, show) {
             const modalContent = modalElement.querySelector('.modal-content');
 
             if (show) {
                 modalElement.classList.remove('hidden');
-                // Force reflow to apply 'modal-enter-from' before 'modal-enter-active'
                 void modalElement.offsetWidth;
                 modalElement.classList.add('modal-enter-active');
                 modalElement.classList.remove('modal-enter-from');
 
                 if (modalContent) {
-                    void modalContent.offsetWidth; // Force reflow for content
+                    void modalContent.offsetWidth;
                     modalContent.classList.add('modal-enter-active');
                     modalContent.classList.remove('modal-enter-from');
                 }
@@ -563,12 +788,10 @@
                     modalElement.removeEventListener('transitionend', handleTransitionEnd);
                 };
 
-                // Listen for transition end on the main modal element
                 modalElement.addEventListener('transitionend', handleTransitionEnd, { once: true });
             }
         }
 
-        // Function to show custom confirmation modal
         function showModal(title, message, onConfirm, confirmText = "Confirm", cancelText = "Cancel") {
             modalTitle.textContent = title;
             modalMessage.textContent = message;
@@ -585,7 +808,7 @@
                 toggleModal(confirmationModal, false);
                 confirmActionBtn.removeEventListener('click', currentConfirmHandler);
                 cancelActionBtn.removeEventListener('click', currentCancelHandler);
-                confirmActionBtn.textContent = "Confirm"; // Reset button texts
+                confirmActionBtn.textContent = "Confirm";
                 cancelActionBtn.textContent = "Cancel";
             };
 
@@ -593,12 +816,10 @@
                 toggleModal(confirmationModal, false);
                 confirmActionBtn.removeEventListener('click', currentConfirmHandler);
                 cancelActionBtn.removeEventListener('click', currentCancelHandler);
-                confirmActionBtn.textContent = "Confirm"; // Reset button texts
+                confirmActionBtn.textContent = "Confirm";
                 cancelActionBtn.textContent = "Cancel";
             };
 
-            // Remove existing listeners before adding new ones to prevent multiple calls
-            // Using a unique property on window to store handlers safely
             if (window._tempConfirmHandler) {
                 confirmActionBtn.removeEventListener('click', window._tempConfirmHandler);
                 cancelActionBtn.removeEventListener('click', window._tempCancelHandler);
@@ -612,15 +833,13 @@
         }
 
         // --- Authentication Functions ---
-
-        // Handle Sign In
         signInBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
-            authError.textContent = ''; // Clear previous errors
-            signInBtn.disabled = true; // Disable button
-            signInLoader.classList.remove('hidden'); // Show loader
+            authError.textContent = '';
+            signInBtn.disabled = true;
+            signInLoader.classList.remove('hidden');
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
@@ -628,19 +847,18 @@
                 console.error("Sign In Error:", error);
                 authError.textContent = error.message;
             } finally {
-                signInBtn.disabled = false; // Re-enable button
-                signInLoader.classList.add('hidden'); // Hide loader
+                signInBtn.disabled = false;
+                signInLoader.classList.add('hidden');
             }
         });
 
-        // Handle Sign Up
         signUpBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             const email = authEmailInput.value;
             const password = authPasswordInput.value;
-            authError.textContent = ''; // Clear previous errors
-            signUpBtn.disabled = true; // Disable button
-            signUpLoader.classList.remove('hidden'); // Show loader
+            authError.textContent = '';
+            signUpBtn.disabled = true;
+            signUpLoader.classList.remove('hidden');
 
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
@@ -648,12 +866,11 @@
                 console.error("Sign Up Error:", error);
                 authError.textContent = error.message;
             } finally {
-                signUpBtn.disabled = false; // Re-enable button
-                signUpLoader.classList.add('hidden'); // Hide loader
+                signUpBtn.disabled = false;
+                signUpLoader.classList.add('hidden');
             }
         });
 
-        // Handle Profile Button click (now triggers logout modal)
         profileBtn.addEventListener('click', async () => {
             showModal(
                 "User Profile",
@@ -666,8 +883,8 @@
                         showModal("Logout Error", "Failed to log out. Please try again.", () => {}, "Ok");
                     }
                 },
-                "Logout", // Text for the confirm button
-                "Close"   // Text for the cancel button
+                "Logout",
+                "Close"
             );
         });
 
@@ -675,20 +892,17 @@
         window.onload = () => {
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    // User is signed in
                     currentUserId = user.uid;
-                    currentUserEmail = user.email || 'N/A'; // Use email or fallback
+                    currentUserEmail = user.email || 'N/A';
                     currentUserIdSpan.textContent = currentUserEmail;
                     userIdDisplay.classList.remove('hidden');
-                    toggleModal(authModal, false); // Hide auth modal with animation
-                    appContent.classList.remove('hidden'); // Show app content
+                    toggleModal(authModal, false);
+                    appContent.classList.remove('hidden');
                     console.log("Logged in as:", currentUserEmail, "(UID:", currentUserId, ")");
-                    transactionsDisplayLimit = 5; // Reset limit on login
-                    // Start listening for data and store the unsubscribe function
+                    transactionsDisplayLimit = 5;
                     unsubscribeFromTransactions = listenForTransactions();
+                    renderBudgets(); // Render budgets when user logs in
                 } else {
-                    // User is signed out
-                    // First, stop listening to old data if it exists
                     if (unsubscribeFromTransactions) {
                         unsubscribeFromTransactions();
                         unsubscribeFromTransactions = null;
@@ -697,28 +911,26 @@
                     currentUserId = null;
                     currentUserEmail = null;
                     userIdDisplay.classList.add('hidden');
-                    toggleModal(authModal, true); // Show auth modal with animation
-                    appContent.classList.add('hidden'); // Hide app content
-                    allTransactions = []; // Clear transactions when logged out
-                    displayTransactions([]); // Clear displayed transactions
-                    updateMonthlySummary(); // Reset summary
+                    toggleModal(authModal, true);
+                    appContent.classList.add('hidden');
+                    allTransactions = [];
+                    displayTransactions([]);
+                    updateMonthlySummary();
+                    budgetDisplayDiv.innerHTML = '<p class="text-gray-500 text-center">No budgets set.</p>'; // Clear budgets
                     console.log("No user logged in.");
                 }
             });
         };
 
-        // Function to listen for real-time transaction updates from Firestore
         function listenForTransactions() {
             if (!db || !currentUserId) {
                 console.error("Firestore DB or User ID not available for listening.");
-                // Return a no-op unsubscribe function if conditions are not met
                 return () => {};
             }
 
             const transactionsCollectionRef = collection(db, `users/${currentUserId}/transactions`);
             const q = query(transactionsCollectionRef);
 
-            // onSnapshot returns an unsubscribe function
             const unsubscribe = onSnapshot(q, (snapshot) => {
                 const transactionsData = snapshot.docs.map(doc => ({
                     id: doc.id,
@@ -729,60 +941,60 @@
 
                 applyCurrentFilterAndDisplay();
                 updateMonthlySummary();
+                updateBudgetDisplay(); // Update budget display after transactions are loaded
             }, (error) => {
                 console.error("Error fetching transactions in onSnapshot:", error);
-                // Only show modal if still authenticated (i.e., not caused by logout cleanup)
                 if (currentUserId) {
                     showModal("Data Fetch Error", "Failed to load transactions. Please check your internet connection.", () => {}, "Ok");
                 }
             });
 
-            return unsubscribe; // Return the unsubscribe function
+            return unsubscribe;
         }
 
-        // Function to display transactions based on current filters
         function applyCurrentFilterAndDisplay() {
             let filteredTransactions = [...allTransactions];
 
             const startDate = startDateInput.value ? new Date(startDateInput.value) : null;
             const endDate = endDateInput.value ? new Date(endDateInput.value) : null;
+            const filterCategory = filterCategorySelect.value; // NEW filter
+            const filterType = filterTypeSelect.value; // NEW filter
 
             let isFilterActive = false;
-            if (startDate || endDate) {
+
+            if (startDate || endDate || filterCategory || filterType) {
                 isFilterActive = true;
                 filteredTransactions = filteredTransactions.filter(t => {
                     const transactionDate = new Date(t.date);
                     const startOfDay = startDate ? new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()) : null;
                     const endOfDay = endDate ? new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 23, 59, 59, 999) : null;
 
-                    const matchesStart = startOfDay ? transactionDate >= startOfDay : true;
-                    const matchesEnd = endOfDay ? transactionDate <= endOfDay : true;
+                    const matchesStartDate = startOfDay ? transactionDate >= startOfDay : true;
+                    const matchesEndDate = endOfDay ? transactionDate <= endOfDay : true;
+                    const matchesCategory = filterCategory ? t.category === filterCategory : true; // Match category
+                    const matchesType = filterType ? t.type === filterType : true; // Match type
 
-                    return matchesStart && matchesEnd;
+                    return matchesStartDate && matchesEndDate && matchesCategory && matchesType;
                 });
             }
 
-            // If no date filter is active, only show up to transactionsDisplayLimit
             let transactionsToShow = filteredTransactions;
             if (!isFilterActive) {
                 transactionsToShow = filteredTransactions.slice(0, transactionsDisplayLimit);
-                // Show/hide load more button
                 if (transactionsDisplayLimit < filteredTransactions.length) {
                     loadMoreBtn.classList.remove('hidden');
                 } else {
                     loadMoreBtn.classList.add('hidden');
                 }
             } else {
-                // If a filter is applied, always show all filtered results and hide load more
                 loadMoreBtn.classList.add('hidden');
             }
 
-            displayTransactions(transactionsToShow); // Pass the potentially sliced array
+            displayTransactions(transactionsToShow);
         }
 
-        // Function to render transactions to the UI
         function displayTransactions(transactionsToDisplay) {
-            transactionListDiv.innerHTML = ''; // Clear existing list
+            transactionListDiv.innerHTML = '';
 
             if (transactionsToDisplay.length === 0) {
                 transactionListDiv.innerHTML = '<p class="text-center text-gray-500 text-lg py-4">No transactions to display.</p>';
@@ -791,34 +1003,40 @@
 
             transactionsToDisplay.forEach(transaction => {
                 const listItem = document.createElement('div');
-                // Added hover effect, increased shadow, and border for a card-like look
-                const borderColorClass = transaction.type === 'income' ? 'border-green-400' : 'border-red-400'; // Dynamic border color
+                const borderColorClass = transaction.type === 'income' ? 'border-green-400' : 'border-red-400';
                 listItem.classList.add(
                     'flex', 'justify-between', 'items-center', 'p-4', 'rounded-lg', 'bg-white',
-                    'shadow-lg', 'border-l-4', borderColorClass, // Stronger shadow and colored left border
+                    'shadow-lg', 'border-l-4', borderColorClass,
                     'flex-wrap', 'sm:flex-nowrap',
                     'hover:shadow-xl', 'transition', 'duration-200', 'ease-in-out', 'transform', 'hover:-translate-y-1',
-                    'mb-3' // Added margin-bottom for spacing between cards
+                    'mb-3', 'transaction-item' // Added a common class for theme toggling
                 );
 
                 const amountClass = transaction.type === 'expense' ? 'text-red-600' : 'text-green-600';
                 const sign = transaction.type === 'expense' ? '-' : '+';
+                const categoryDisplay = transaction.category ? `<span class="text-gray-500 text-xs mt-1 px-2 py-0.5 bg-gray-100 rounded-full">${transaction.category}</span>` : '';
+                const tagsDisplay = transaction.tags ? `<span class="text-gray-500 text-xs mt-1 ml-2 px-2 py-0.5 bg-blue-100 rounded-full">${transaction.tags.split(',').map(tag => `#${tag.trim()}`).join(' ')}</span>` : '';
+
 
                 listItem.innerHTML = `
                     <div class="flex flex-col flex-grow min-w-0 mr-4 py-1">
                         <span class="text-gray-800 font-bold text-lg truncate">${transaction.description}</span>
-                        <span class="text-gray-500 text-sm">${transaction.date}</span>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <span class="text-gray-500 text-sm">${transaction.date}</span>
+                            ${categoryDisplay}
+                            ${tagsDisplay}
+                        </div>
                     </div>
                     <span class="${amountClass} font-extrabold text-xl sm:text-2xl mr-4 text-right flex-shrink-0 py-1">
                         ${sign} ₹${transaction.amount.toFixed(2)}
                     </span>
                     <div class="flex space-x-2 flex-shrink-0 ml-auto py-1">
-                        <button class="edit-btn bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-md shadow-sm transition duration-200 hover:scale-105" data-id="${transaction.id}" title="Edit Transaction">
+                        <button class="edit-btn bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-md shadow-sm transition duration-200 hover:scale-105" data-id="${transaction.id}" title="Edit Transaction" aria-label="Edit transaction ${transaction.description}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                             </svg>
                         </button>
-                        <button class="delete-btn bg-red-500 hover:bg-red-600 text-white p-2 rounded-md shadow-sm transition duration-200 hover:scale-105" data-id="${transaction.id}" title="Delete Transaction">
+                        <button class="delete-btn bg-red-500 hover:bg-red-600 text-white p-2 rounded-md shadow-sm transition duration-200 hover:scale-105" data-id="${transaction.id}" title="Delete Transaction" aria-label="Delete transaction ${transaction.description}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -828,7 +1046,6 @@
                 transactionListDiv.appendChild(listItem);
             });
 
-            // Attach event listeners to new buttons (delegation or direct after rendering)
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.onclick = (e) => {
                     const id = e.currentTarget.dataset.id;
@@ -852,7 +1069,7 @@
                 };
             });
         }
-        // Function to update monthly summary
+
         function updateMonthlySummary() {
             const now = new Date();
             const currentMonth = now.getMonth();
@@ -878,8 +1095,6 @@
             monthlyExpensesSpan.textContent = `₹${totalExpenses.toFixed(2)}`;
             monthlyBalanceSpan.textContent = `₹${netBalance.toFixed(2)}`;
 
-            // Change color of net balance based on value
-            // More contrasting colors on the darker gradient background
             if (netBalance >= 0) {
                 monthlyBalanceSpan.classList.remove('text-red-300', 'text-red-400');
                 monthlyBalanceSpan.classList.add('text-green-200');
@@ -890,32 +1105,28 @@
         }
 
         // --- New Functions for Add Transaction Modal ---
-
-        // Function to open the Add Transaction modal
         function openAddTransactionModal(type) {
             currentAddTransactionType = type;
             addModalTitle.textContent = `Add New ${type === 'income' ? 'Income' : 'Expense'}`;
-            // Pre-fill date with today's date
             addDateInput.value = new Date().toISOString().slice(0, 10);
             addDescriptionInput.value = '';
             addAmountInput.value = '';
-            addError.textContent = ''; // Clear previous errors
+            addCategorySelect.value = ''; // Reset category
+            addTagsInput.value = ''; // Reset tags
+            addError.textContent = '';
             toggleModal(addTransactionModal, true);
-            addLoader.classList.add('hidden'); // Hide loader
-            confirmAddTransactionBtn.disabled = false; // Enable button
+            addLoader.classList.add('hidden');
+            confirmAddTransactionBtn.disabled = false;
         }
 
-        // Event listener for "Add Expense" button
         addExpenseBtn.addEventListener('click', () => {
             openAddTransactionModal('expense');
         });
 
-        // Event listener for "Add Income" button
         addIncomeBtn.addEventListener('click', () => {
             openAddTransactionModal('income');
         });
 
-        // Event listener for "Confirm Add" button inside the Add Transaction modal
         addTransactionForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -928,15 +1139,17 @@
             const description = addDescriptionInput.value.trim();
             const amount = parseFloat(addAmountInput.value);
             const date = addDateInput.value;
-            const type = currentAddTransactionType; // Use the stored type
+            const category = addCategorySelect.value; // Get category
+            const tags = addTagsInput.value.trim(); // Get tags
+            const type = currentAddTransactionType;
 
-            if (!description || isNaN(amount) || amount <= 0 || !date) {
-                addError.textContent = "Please fill in all fields correctly. Amount must be a positive number.";
+            if (!description || isNaN(amount) || amount <= 0 || !date || !category) {
+                addError.textContent = "Please fill in all fields (including Category) correctly. Amount must be a positive number.";
                 return;
             }
 
-            addLoader.classList.remove('hidden'); // Show loader
-            confirmAddTransactionBtn.disabled = true; // Disable button
+            addLoader.classList.remove('hidden');
+            confirmAddTransactionBtn.disabled = true;
 
             try {
                 await addDoc(collection(db, `users/${currentUserId}/transactions`), {
@@ -944,52 +1157,52 @@
                     amount: amount,
                     date: date,
                     type: type,
+                    category: category, // Save category
+                    tags: tags, // Save tags
                     userId: currentUserId,
                     timestamp: serverTimestamp()
                 });
                 console.log("Transaction successfully added!");
-                resetAddModal(); // Close modal and reset fields
+                resetAddModal();
             } catch (error) {
                 console.error("Error adding document: ", error);
                 addError.textContent = "Failed to add transaction. Please try again.";
             } finally {
-                addLoader.classList.add('hidden'); // Hide loader
-                confirmAddTransactionBtn.disabled = false; // Re-enable button
+                addLoader.classList.add('hidden');
+                confirmAddTransactionBtn.disabled = false;
             }
         });
 
-        // Event listener for "Cancel" button in the Add Transaction modal
         cancelAddModalBtn.addEventListener('click', () => {
             resetAddModal();
         });
 
-        // Function to reset and hide the Add Transaction modal
         function resetAddModal() {
             addDescriptionInput.value = '';
             addAmountInput.value = '';
             addDateInput.value = '';
+            addCategorySelect.value = '';
+            addTagsInput.value = '';
             addError.textContent = '';
             currentAddTransactionType = null;
             toggleModal(addTransactionModal, false);
         }
 
-
         // --- Existing Functions for Edit/Delete ---
-
-        // Function to handle editing a transaction (shows modal)
         function handleEditTransaction(transaction) {
-            transactionBeingEditedId = transaction.id; // Store ID of transaction being edited
+            transactionBeingEditedId = transaction.id;
             editDescriptionInput.value = transaction.description;
             editAmountInput.value = transaction.amount;
             editDateInput.value = transaction.date;
-            editError.textContent = ''; // Clear previous errors
+            editCategorySelect.value = transaction.category || ''; // Set category
+            editTagsInput.value = transaction.tags || ''; // Set tags
+            editError.textContent = '';
 
             toggleModal(editTransactionModal, true);
-            editLoader.classList.add('hidden'); // Hide loader
-            saveEditBtn.disabled = false; // Enable button
+            editLoader.classList.add('hidden');
+            saveEditBtn.disabled = false;
         }
 
-        // Function to handle deleting a transaction
         async function handleDeleteTransaction(transactionId) {
             if (!db || !currentUserId) {
                 console.error("Firebase not initialized or user not authenticated.");
@@ -997,28 +1210,26 @@
                 return;
             }
             try {
-                // Construct the document reference
                 const docRef = doc(db, `users/${currentUserId}/transactions`, transactionId);
                 await deleteDoc(docRef);
                 console.log("Document successfully deleted!");
-                // onSnapshot will automatically update the UI
             } catch (error) {
                 console.error("Error removing document: ", error);
                 showModal("Error", "Failed to delete transaction. Please try again.", () => {}, "Ok");
             }
         }
 
-        // Function to reset the edit modal and related state
         function resetEditModal() {
             transactionBeingEditedId = null;
             editDescriptionInput.value = '';
             editAmountInput.value = '';
             editDateInput.value = '';
+            editCategorySelect.value = '';
+            editTagsInput.value = '';
             editError.textContent = '';
             toggleModal(editTransactionModal, false);
         }
 
-        // Event listener for Save Changes button in edit modal
         saveEditBtn.addEventListener('click', async (e) => {
             e.preventDefault();
 
@@ -1031,14 +1242,16 @@
             const description = editDescriptionInput.value.trim();
             const amount = parseFloat(editAmountInput.value);
             const date = editDateInput.value;
+            const category = editCategorySelect.value; // Get category
+            const tags = editTagsInput.value.trim(); // Get tags
 
-            if (!description || isNaN(amount) || amount <= 0 || !date) {
-                editError.textContent = "Please fill in all fields correctly. Amount must be a positive number.";
+            if (!description || isNaN(amount) || amount <= 0 || !date || !category) {
+                editError.textContent = "Please fill in all fields (including Category) correctly. Amount must be a positive number.";
                 return;
             }
 
-            editLoader.classList.remove('hidden'); // Show loader
-            saveEditBtn.disabled = true; // Disable button
+            editLoader.classList.remove('hidden');
+            saveEditBtn.disabled = true;
 
             try {
                 const docRef = doc(db, `users/${currentUserId}/transactions`, transactionBeingEditedId);
@@ -1046,20 +1259,20 @@
                     description: description,
                     amount: amount,
                     date: date,
-                    // Note: Type is not changed during edit to keep it consistent
+                    category: category, // Update category
+                    tags: tags, // Update tags
                 });
                 console.log("Document successfully updated!");
-                resetEditModal(); // Close modal and reset fields
+                resetEditModal();
             } catch (error) {
                 console.error("Error updating document: ", error);
                 editError.textContent = "Failed to update transaction. Please try again.";
             } finally {
-                editLoader.classList.add('hidden'); // Hide loader
-                saveEditBtn.disabled = false; // Re-enable button
+                editLoader.classList.add('hidden');
+                saveEditBtn.disabled = false;
             }
         });
 
-        // Event listener for Cancel button in edit modal
         cancelEditModalBtn.addEventListener('click', () => {
             resetEditModal();
         });
@@ -1071,66 +1284,62 @@
         clearFilterBtn.addEventListener('click', () => {
             startDateInput.value = '';
             endDateInput.value = '';
-            transactionsDisplayLimit = 5; // Reset limit on clear filter
+            filterCategorySelect.value = ''; // Clear category filter
+            filterTypeSelect.value = ''; // Clear type filter
+            transactionsDisplayLimit = 5;
             applyCurrentFilterAndDisplay();
         });
 
         // Event listener for Load More button
         loadMoreBtn.addEventListener('click', () => {
-            transactionsDisplayLimit += 10; // Increase limit by 10
-            applyCurrentFilterAndDisplay(); // Re-apply filter and re-render
+            transactionsDisplayLimit += 10;
+            applyCurrentFilterAndDisplay();
         });
 
-        // NEW: Event listener for Toggle History button
         toggleHistoryBtn.addEventListener('click', () => {
-            console.log("Toggle history button clicked!"); // Debug log
-            historyContent.classList.toggle('is-active'); // Toggle the new class
+            historyContent.classList.toggle('is-active');
             if (historyContent.classList.contains('is-active')) {
                 toggleHistoryBtn.textContent = 'Hide History';
+                toggleHistoryBtn.setAttribute('aria-expanded', 'true');
             } else {
                 toggleHistoryBtn.textContent = 'Show History';
+                toggleHistoryBtn.setAttribute('aria-expanded', 'false');
             }
-            console.log("History content classes:", historyContent.classList); // Debug log
         });
-
-
-        // NEW: Toggle Filter Section
-        const toggleFilterBtn = document.getElementById('toggleFilterBtn');
-        const filterSection = document.getElementById('filterSection');
 
         toggleFilterBtn.addEventListener('click', () => {
             filterSection.classList.toggle('hidden');
             if (filterSection.classList.contains('hidden')) {
                 toggleFilterBtn.textContent = 'Show Filters';
+                toggleFilterBtn.setAttribute('aria-expanded', 'false');
             } else {
                 toggleFilterBtn.textContent = 'Hide Filters';
+                toggleFilterBtn.setAttribute('aria-expanded', 'true');
             }
         });
 
-        // Function to export data to CSV
         exportToExcelBtn.addEventListener('click', () => {
             if (allTransactions.length === 0) {
                 showModal("No Data", "There is no data to export.", () => {}, "Ok");
                 return;
             }
 
-            // Define CSV header
-            const header = ['Type', 'Description', 'Amount', 'Date', 'UserID'];
-            let csvContent = header.map(h => `"${h}"`).join(',') + '\n'; // Quote headers too
+            const header = ['Type', 'Description', 'Amount', 'Date', 'Category', 'Tags', 'UserID'];
+            let csvContent = header.map(h => `"${h}"`).join(',') + '\n';
 
-            // Add rows
             allTransactions.forEach(transaction => {
                 const row = [
                     transaction.type,
-                    `"${transaction.description.replace(/"/g, '""')}"`, // Handle quotes in description
+                    `"${transaction.description.replace(/"/g, '""')}"`,
                     transaction.amount.toFixed(2),
                     transaction.date,
+                    `"${(transaction.category || '').replace(/"/g, '""')}"`, // Include category
+                    `"${(transaction.tags || '').replace(/"/g, '""')}"`, // Include tags
                     transaction.userId
                 ];
                 csvContent += row.join(',') + '\n';
             });
 
-            // Download CSV
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1141,18 +1350,121 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         });
-        // End PWA registration
 
+        // --- NEW: Budgeting Logic (Client-side only for now) ---
+        setBudgetBtn.addEventListener('click', () => {
+            const category = budgetCategorySelect.value;
+            const amount = parseFloat(budgetAmountInput.value);
+
+            if (!category) {
+                budgetStatusDiv.textContent = 'Please select a category.';
+                budgetStatusDiv.classList.remove('text-green-600', 'text-red-600');
+                budgetStatusDiv.classList.add('text-yellow-600');
+                return;
+            }
+            if (isNaN(amount) || amount <= 0) {
+                budgetStatusDiv.textContent = 'Please enter a valid positive budget amount.';
+                budgetStatusDiv.classList.remove('text-green-600', 'text-red-600');
+                budgetStatusDiv.classList.add('text-yellow-600');
+                return;
+            }
+
+            monthlyBudgets[category] = amount;
+            localStorage.setItem('monthlyBudgets', JSON.stringify(monthlyBudgets)); // Save to localStorage
+            budgetStatusDiv.textContent = `Budget of ₹${amount.toFixed(2)} set for ${category}.`;
+            budgetStatusDiv.classList.remove('text-yellow-600', 'text-red-600');
+            budgetStatusDiv.classList.add('text-green-600');
+            renderBudgets();
+            updateBudgetDisplay(); // Update budget display
+        });
+
+        function renderBudgets() {
+            budgetDisplayDiv.innerHTML = '';
+            if (Object.keys(monthlyBudgets).length === 0) {
+                budgetDisplayDiv.innerHTML = '<p class="text-gray-500 text-center">No budgets set. Use the form above to set one.</p>';
+                return;
+            }
+
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            for (const category in monthlyBudgets) {
+                const budgetAmount = monthlyBudgets[category];
+                let spentAmount = 0;
+
+                allTransactions.forEach(transaction => {
+                    const transactionDate = new Date(transaction.date);
+                    if (transaction.type === 'expense' &&
+                        transaction.category === category &&
+                        transactionDate.getMonth() === currentMonth &&
+                        transactionDate.getFullYear() === currentYear) {
+                        spentAmount += transaction.amount;
+                    }
+                });
+
+                const remaining = budgetAmount - spentAmount;
+                const percentage = (spentAmount / budgetAmount) * 100;
+
+                let progressBarColor = 'bg-green-500';
+                let textColor = 'text-green-700';
+                if (percentage >= 100) {
+                    progressBarColor = 'bg-red-500';
+                    textColor = 'text-red-700';
+                } else if (percentage >= 75) {
+                    progressBarColor = 'bg-yellow-500';
+                    textColor = 'text-yellow-700';
+                }
+
+                const budgetElement = document.createElement('div');
+                budgetElement.classList.add('bg-white', 'p-4', 'rounded-lg', 'shadow-sm', 'border', 'border-gray-200', 'transition-colors', 'duration-300');
+                budgetElement.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold text-gray-800">${category} Budget</span>
+                        <span class="text-gray-700">₹${spentAmount.toFixed(2)} / ₹${budgetAmount.toFixed(2)}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                        <div class="${progressBarColor} h-2.5 rounded-full" style="width: ${Math.min(100, percentage)}%;"></div>
+                    </div>
+                    <p class="${textColor} text-sm font-medium">
+                        Remaining: ₹${remaining.toFixed(2)}
+                    </p>
+                `;
+                budgetDisplayDiv.appendChild(budgetElement);
+            }
+        }
+
+        function updateBudgetDisplay() {
+            renderBudgets(); // Re-render budgets to reflect latest transaction data
+        }
+
+
+        // Gemini AI Assistant popup logic
+        const geminiOpenBtn = document.getElementById('geminiOpenBtn');
+        const geminiChat = document.getElementById('geminiChat');
+        const geminiCloseBtn = document.getElementById('geminiCloseBtn');
         const geminiForm = document.getElementById('geminiForm');
         const geminiInput = document.getElementById('geminiInput');
         const geminiMessages = document.getElementById('geminiMessages');
+
+        geminiChat.style.display = 'none';
+        geminiOpenBtn.style.display = 'block';
+
+        geminiOpenBtn.addEventListener('click', () => {
+            geminiChat.style.display = 'block';
+            geminiOpenBtn.style.display = 'none';
+        });
+
+        geminiCloseBtn.addEventListener('click', () => {
+            geminiChat.style.display = 'none';
+            geminiOpenBtn.style.display = 'block';
+        });
 
         geminiForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const userMsg = geminiInput.value.trim();
             if (!userMsg) return;
 
-            // Add user message as a bubble
             geminiMessages.innerHTML += `
                 <div class="flex justify-end mb-1">
                     <div class="bg-indigo-100 text-indigo-900 px-4 py-2 rounded-xl max-w-[75%] shadow">
@@ -1161,7 +1473,6 @@
                 </div>
             `;
             geminiInput.value = '';
-            // Add Gemini is typing bubble with a unique class for easy removal
             geminiMessages.innerHTML += `
                 <div class="flex justify-start mb-1 gemini-typing">
                     <div class="bg-gray-100 text-gray-500 px-4 py-2 rounded-xl max-w-[75%] shadow italic">
@@ -1171,12 +1482,23 @@
             `;
             geminiMessages.scrollTop = geminiMessages.scrollHeight;
 
-            // Use Gemini 2.5 Flash model and your actual API key from Google AI Studio
             const apiKey = 'AIzaSyB6GKF6P3CRlU8UEfX881QcsHpe_JxSVZk'; // Replace with your actual key
             const url = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=' + apiKey;
 
+            // NEW: Prepare prompt for Gemini with context of available data (without sending actual data)
+            const financialContextPrompt = `
+                You are an AI assistant for a personal finance tracker application.
+                The user can track income and expenses, categorize transactions (e.g., Food, Transport, Utilities, Rent, Salary, Entertainment, Shopping, Health, Education, Other), and add tags.
+                They can also set monthly budgets for categories.
+                I cannot directly access the user's personal transaction data or Firebase directly from this chat.
+                If the user asks about specific transactions or their financial data, you should guide them to use the app's built-in filters, reports, or suggest how they might hypothetically use an AI with data access (e.g., "If I had access to your data, I could tell you...").
+                Focus on general financial advice, budgeting tips, explanations of financial concepts, or guidance on how to use the app's features effectively.
+
+                User query: "${userMsg}"
+            `;
+
             const body = {
-                contents: [{ parts: [{ text: userMsg }] }]
+                contents: [{ parts: [{ text: financialContextPrompt }] }]
             };
 
             try {
@@ -1186,13 +1508,11 @@
                     body: JSON.stringify(body)
                 });
                 const data = await res.json();
-                const geminiText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.';
+                const geminiText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from Gemini.';
 
-                // Remove "Gemini is typing..." bubble
                 const typingBubble = geminiMessages.querySelector('.gemini-typing');
-                if (typingBubble) typingBubble.remove();
+                if (typingBubble) typing_bubble.remove();
 
-                // Render Gemini response as a styled bubble with Markdown
                 geminiMessages.innerHTML += `
                     <div class="flex justify-start mb-2">
                         <div class="bg-white border border-indigo-200 text-gray-800 px-4 py-2 rounded-xl max-w-[75%] shadow markdown-body">
@@ -1202,41 +1522,21 @@
                     </div>
                 `;
             } catch (err) {
-                // Remove "Gemini is typing..." bubble
                 const typingBubble = geminiMessages.querySelector('.gemini-typing');
                 if (typingBubble) typingBubble.remove();
 
                 geminiMessages.innerHTML += `
                     <div class="flex justify-start mb-2">
                         <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-xl max-w-[75%] shadow">
-                            <b>Error:</b> ${err.message}
+                            <b>Error:</b> Failed to get response from Gemini. Please check your network or API key.
                         </div>
                     </div>
                 `;
+                console.error("Gemini API Error:", err);
             }
             geminiMessages.scrollTop = geminiMessages.scrollHeight;
         });
 
-        // Gemini AI Assistant popup logic
-        const geminiOpenBtn = document.getElementById('geminiOpenBtn');
-        const geminiChat = document.getElementById('geminiChat');
-        const geminiCloseBtn = document.getElementById('geminiCloseBtn');
-
-        // Hide chat by default, show only the button
-        geminiChat.style.display = 'none';
-        geminiOpenBtn.style.display = 'block';
-
-        // Open Gemini chat popup
-        geminiOpenBtn.addEventListener('click', () => {
-            geminiChat.style.display = 'block';
-            geminiOpenBtn.style.display = 'none';
-        });
-
-        // Close Gemini chat popup
-        geminiCloseBtn.addEventListener('click', () => {
-            geminiChat.style.display = 'none';
-            geminiOpenBtn.style.display = 'block';
-        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
