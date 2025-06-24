@@ -249,16 +249,6 @@
             <h3 id="addModalTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center">Add New Transaction</h3>
             <form id="addTransactionForm" class="space-y-5">
                 <div>
-                    <label for="addDescription" class="block text-gray-700 text-lg font-medium mb-2">Description</label>
-                    <input
-                        type="text"
-                        id="addDescription"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
-                        placeholder="e.g., Groceries, Salary, Rent"
-                        required
-                    />
-                </div>
-                <div>
                     <label for="addAmount" class="block text-gray-700 text-lg font-medium mb-2">Amount</label>
                     <input
                         type="number"
@@ -270,12 +260,23 @@
                     />
                 </div>
                 <div>
+                    <label for="addDescription" class="block text-gray-700 text-lg font-medium mb-2">Description</label>
+                    <input
+                        type="text"
+                        id="addDescription"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
+                        placeholder="e.g., Groceries, Salary, Rent"
+                        required
+                    />
+                </div>
+                <div>
                     <label for="addDate" class="block text-gray-700 text-lg font-medium mb-2">Date</label>
                     <input
                         type="date"
                         id="addDate"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         required
+                        placeholder=""
                     />
                 </div>
                 <p id="addError" class="text-red-600 mt-4 text-sm text-center font-semibold"></p>
@@ -329,6 +330,7 @@
                         id="editDate"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition duration-200"
                         required
+                        placeholder=""
                     />
                 </div>
                 <p id="editError" class="text-red-600 mt-4 text-sm text-center font-semibold"></p>
@@ -360,6 +362,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 21l1.8-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
     </button>
 
     <!-- Gemini Chat Popup (responsive) -->
