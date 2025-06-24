@@ -449,21 +449,42 @@
 
         // Utility function to toggle modal visibility and apply animation classes
         function toggleModal(modalElement, show) {
+            const modalContent = modalElement.querySelector('.modal-content');
+
             if (show) {
                 modalElement.classList.remove('hidden');
-                // Trigger reflow to ensure animation starts from 'from' state
+                // Force reflow to apply 'modal-enter-from' before 'modal-enter-active'
                 void modalElement.offsetWidth;
                 modalElement.classList.add('modal-enter-active');
                 modalElement.classList.remove('modal-enter-from');
+
+                if (modalContent) {
+                    void modalContent.offsetWidth; // Force reflow for content
+                    modalContent.classList.add('modal-enter-active');
+                    modalContent.classList.remove('modal-enter-from');
+                }
             } else {
                 modalElement.classList.add('modal-leave-active');
                 modalElement.classList.add('modal-leave-to');
                 modalElement.classList.remove('modal-enter-active');
-                modalElement.addEventListener('transitionend', function handler() {
+
+                if (modalContent) {
+                    modalContent.classList.add('modal-leave-active');
+                    modalContent.classList.add('modal-leave-to');
+                    modalContent.classList.remove('modal-enter-active');
+                }
+
+                const handleTransitionEnd = () => {
                     modalElement.classList.add('hidden');
                     modalElement.classList.remove('modal-leave-active', 'modal-leave-to');
-                    modalElement.removeEventListener('transitionend', handler);
-                }, { once: true });
+                    if (modalContent) {
+                        modalContent.classList.remove('modal-leave-active', 'modal-leave-to');
+                    }
+                    modalElement.removeEventListener('transitionend', handleTransitionEnd);
+                };
+
+                // Listen for transition end on the main modal element
+                modalElement.addEventListener('transitionend', handleTransitionEnd, { once: true });
             }
         }
 
@@ -473,7 +494,7 @@
             modalMessage.textContent = message;
             confirmActionBtn.textContent = confirmText;
             cancelActionBtn.textContent = cancelText;
-            
+
             toggleModal(confirmationModal, true);
 
             let currentConfirmHandler = null;
