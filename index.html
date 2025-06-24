@@ -71,6 +71,11 @@
             max-height: max-content; /* FIX: This will allow it to expand to content height */
             opacity: 1;
         }
+
+        .markdown-body ul, .markdown-body ol { margin-left: 1.5em; }
+        .markdown-body pre { background: #f3f4f6; padding: 0.5em 1em; border-radius: 0.5em; }
+        .markdown-body code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; }
+        .markdown-body a { color: #6366f1; text-decoration: underline; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 to-purple-100 min-h-screen flex items-start justify-center pb-8">
@@ -348,25 +353,46 @@
     </div>
 
     <!-- Gemini AI Assistant Button (hidden by default) -->
-    <button id="geminiOpenBtn" class="fixed bottom-6 right-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg p-3 z-50 flex items-center justify-center"
-            style="display: block;">
-        <!-- Chat icon SVG -->
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <button id="geminiOpenBtn"
+        class="fixed bottom-6 right-6 bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl p-4 z-50 flex items-center justify-center border-4 border-white transition-transform duration-200 hover:scale-110"
+        style="display: block;">
+        <!-- Chat icon SVG with animation -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 21l1.8-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
     </button>
 
     <!-- Gemini Chat Popup (hidden by default) -->
-    <div id="geminiChat" class="fixed bottom-4 right-4 bg-white rounded-xl shadow-lg p-4 w-80 border border-gray-300 z-50"
+    <div id="geminiChat"
+         class="fixed bottom-4 right-4 bg-gradient-to-br from-white via-indigo-50 to-purple-100 rounded-2xl shadow-2xl p-0 w-96 border-2 border-indigo-300 z-50 transition-all duration-300"
          style="display: none;">
-        <div class="flex justify-between items-center mb-2">
-            <h3 class="font-bold text-indigo-700">Gemini AI Assistant</h3>
-            <button id="geminiCloseBtn" class="text-gray-400 hover:text-red-500 text-xl font-bold ml-2" title="Close">&times;</button>
+        <div class="flex justify-between items-center px-6 pt-4 pb-2 rounded-t-2xl bg-gradient-to-r from-indigo-500 to-purple-500">
+            <div class="flex items-center space-x-2">
+                <span class="inline-block bg-white rounded-full p-1 shadow">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M8 10h.01M12 10h.01M16 10h.01"/>
+                    </svg>
+                </span>
+                <h3 class="font-extrabold text-white text-lg tracking-wide drop-shadow">Gemini AI Assistant</h3>
+            </div>
+            <button id="geminiCloseBtn" class="text-white hover:text-red-300 text-2xl font-bold ml-2 transition-colors duration-200" title="Close">&times;</button>
         </div>
-        <div id="geminiMessages" class="h-40 overflow-y-auto mb-2 text-sm"></div>
-        <form id="geminiForm" class="flex">
-            <input id="geminiInput" type="text" class="flex-1 border rounded-l px-2 py-1" placeholder="Ask Gemini..." required>
-            <button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded-r">Send</button>
+        <div id="geminiMessages" class="h-56 overflow-y-auto px-6 py-3 text-sm space-y-2 bg-white rounded-b-2xl">
+            <div class="text-center text-indigo-400 italic">Ask me anything about your finances or budgeting!</div>
+        </div>
+        <form id="geminiForm" class="flex items-center px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-100 rounded-b-2xl border-t border-indigo-100 space-x-2">
+            <input id="geminiInput" type="text"
+                   class="flex-1 border border-indigo-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-transparent outline-none transition duration-200 bg-white"
+                   placeholder="Ask Gemini..." required>
+            <button type="submit"
+                    class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg shadow-md font-semibold transition-transform duration-200 hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </button>
         </form>
     </div>
 
@@ -1077,31 +1103,17 @@
                 csvContent += row.join(',') + '\n';
             });
 
-            // Create a Blob and a download link
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'finance_transactions.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'transactions.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
         });
-
-        // PWA: Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registered! Scope:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                    });
-            });
-        }
         // End PWA registration
 
         const geminiForm = document.getElementById('geminiForm');
@@ -1112,9 +1124,24 @@
             e.preventDefault();
             const userMsg = geminiInput.value.trim();
             if (!userMsg) return;
-            geminiMessages.innerHTML += `<div class="mb-1"><b>You:</b> ${userMsg}</div>`;
+
+            // Add user message as a bubble
+            geminiMessages.innerHTML += `
+                <div class="flex justify-end mb-1">
+                    <div class="bg-indigo-100 text-indigo-900 px-4 py-2 rounded-xl max-w-[75%] shadow">
+                        <b>You:</b> ${userMsg}
+                    </div>
+                </div>
+            `;
             geminiInput.value = '';
-            geminiMessages.innerHTML += `<div class="mb-1 text-gray-400">Gemini is typing...</div>`;
+            // Add Gemini is typing bubble with a unique class for easy removal
+            geminiMessages.innerHTML += `
+                <div class="flex justify-start mb-1 gemini-typing">
+                    <div class="bg-gray-100 text-gray-500 px-4 py-2 rounded-xl max-w-[75%] shadow italic">
+                        Gemini is typing...
+                    </div>
+                </div>
+            `;
             geminiMessages.scrollTop = geminiMessages.scrollHeight;
 
             // Use Gemini 2.5 Flash model and your actual API key from Google AI Studio
@@ -1133,9 +1160,32 @@
                 });
                 const data = await res.json();
                 const geminiText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.';
-                geminiMessages.innerHTML += `<div class="mb-2"><b>Gemini:</b> ${geminiText}</div>`;
+
+                // Remove "Gemini is typing..." bubble
+                const typingBubble = geminiMessages.querySelector('.gemini-typing');
+                if (typingBubble) typingBubble.remove();
+
+                // Render Gemini response as a styled bubble with Markdown
+                geminiMessages.innerHTML += `
+                    <div class="flex justify-start mb-2">
+                        <div class="bg-white border border-indigo-200 text-gray-800 px-4 py-2 rounded-xl max-w-[75%] shadow markdown-body">
+                            <b>Gemini:</b>
+                            <div>${marked.parse(geminiText)}</div>
+                        </div>
+                    </div>
+                `;
             } catch (err) {
-                geminiMessages.innerHTML += `<div class="mb-2 text-red-500">Error: ${err.message}</div>`;
+                // Remove "Gemini is typing..." bubble
+                const typingBubble = geminiMessages.querySelector('.gemini-typing');
+                if (typingBubble) typingBubble.remove();
+
+                geminiMessages.innerHTML += `
+                    <div class="flex justify-start mb-2">
+                        <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-2 rounded-xl max-w-[75%] shadow">
+                            <b>Error:</b> ${err.message}
+                        </div>
+                    </div>
+                `;
             }
             geminiMessages.scrollTop = geminiMessages.scrollHeight;
         });
@@ -1161,5 +1211,6 @@
             geminiOpenBtn.style.display = 'block';
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </body>
 </html>
